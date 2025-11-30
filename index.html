@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mestre das Equações</title>
     
-    <!-- Configuração para garantir que os símbolos $ não aparecem aos alunos antes de renderizar -->
+    <!-- MathJax Configuration -->
     <script>
     window.MathJax = {
       tex: {
@@ -15,7 +15,6 @@
       svg: { fontCache: 'global' }
     };
     </script>
-    <!-- Carregar MathJax para renderizar equações matemáticas reais -->
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
@@ -27,171 +26,107 @@
             --text: #2c3e50;
             --card-bg: #ffffff;
             --hint-bg: #fff0f0;
-            --tab-active: #e1f0ff;
+            --study-color: #f39c12; /* Cor para o novo módulo */
             --balance-color: #34495e;
             --board-color: #ffeaa7;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--background);
-            color: var(--text);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* --- UI Elements --- */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--background); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .container { width: 95%; max-width: 800px; margin-top: 20px; text-align: center; padding-bottom: 40px; }
+        
+        /* Cards & Layout */
+        .card { background: var(--card-bg); border-radius: 15px; padding: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin-bottom: 20px; transition: transform 0.3s ease; }
+        .hidden { display: none !important; }
+        .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; justify-content: center; }
+        .col { flex: 1; min-width: 200px; }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            transition: transform 0.3s ease;
-        }
-
+        /* Typography */
         h1 { color: var(--primary); margin-bottom: 0.5em; }
         h2 { color: var(--primary); font-size: 1.4rem; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;}
         h3 { color: #34495e; font-size: 1.1rem; margin-top: 25px; font-weight: 700;}
-        
-        .btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
-            border-radius: 50px;
-            cursor: pointer;
-            margin: 5px;
-            transition: background 0.2s, transform 0.1s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: inline-block;
-            font-weight: 600;
-        }
-        .btn:hover { background-color: #357abd; transform: translateY(-2px); }
+
+        /* Buttons */
+        .btn { background-color: var(--primary); color: white; border: none; padding: 10px 20px; font-size: 1rem; border-radius: 50px; cursor: pointer; margin: 5px; transition: transform 0.1s, background 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: inline-block; font-weight: 600; }
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .btn:active { transform: translateY(0); }
         .btn-secondary { background-color: #95a5a6; }
         .btn-accent { background-color: var(--accent); }
         .btn-game { background-color: #9b59b6; }
-        .btn-game:hover { background-color: #8e44ad; }
+        .btn-study { background-color: var(--study-color); }
         .btn-small { font-size: 0.85rem; padding: 5px 15px; }
+        .btn-large { padding: 15px 30px; font-size: 1.2rem; min-width: 150px; }
+        .btn-true { background-color: #27ae60; }
+        .btn-false { background-color: #c0392b; }
 
-        /* --- Balance Scale Simulator --- */
-        .balance-container {
-            display: flex; flex-direction: column; align-items: center;
-            margin: 20px auto; height: 180px; width: 100%; max-width: 400px; position: relative;
-        }
-        .balance-beam {
-            width: 80%; height: 6px; background-color: var(--balance-color);
-            position: relative; top: 50px; transition: transform 0.5s ease; transform-origin: center;
-        }
-        .tilt-left { transform: rotate(-15deg); }
-        .tilt-right { transform: rotate(15deg); }
-        .balanced { transform: rotate(0deg); }
+        /* --- FLASHCARDS STYLES --- */
+        .flashcard-container { perspective: 1000px; width: 100%; max-width: 500px; height: 300px; margin: 20px auto; cursor: pointer; }
+        .flashcard-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .flashcard-container.flipped .flashcard-inner { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; border-radius: 15px; }
+        .flashcard-front { background-color: white; color: var(--text); border: 2px solid var(--study-color); }
+        .flashcard-back { background-color: var(--study-color); color: white; transform: rotateY(180deg); }
+        .flashcard-content { font-size: 1.3rem; line-height: 1.5; }
+        .flashcard-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; opacity: 0.8; }
 
-        .balance-fulcrum {
-            width: 0; height: 0; 
-            border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 40px solid var(--balance-color);
-            position: absolute; top: 56px; left: 50%; transform: translateX(-50%);
-        }
-        .pan { width: 80px; height: 5px; background-color: var(--balance-color); position: absolute; top: 30px; }
-        .pan-left { left: 0; } .pan-right { right: 0; }
-        .pan-string { width: 2px; height: 30px; background-color: #bdc3c7; position: absolute; top: 0; }
-        .string-l1 { left: 0; } .string-l2 { left: 80px; } .string-r1 { right: 0; } .string-r2 { right: 80px; }
-
-        .pan-plate {
-            width: 100px; height: 10px; background-color: #95a5a6; border-radius: 0 0 50px 50px;
-            position: absolute; top: 30px; display: flex; justify-content: center; align-items: flex-end;
-            padding-bottom: 5px; flex-wrap: wrap-reverse; gap: 2px; transition: transform 0.5s ease;
-        }
-        .plate-left { left: -10px; } .plate-right { right: -10px; }
-
-        .weight-box {
-            width: 25px; height: 25px; background-color: var(--primary); color: white;
-            display: flex; align-items: center; justify-content: center; border-radius: 3px;
-            font-size: 0.9rem; font-family: 'Times New Roman', serif; font-style: italic; font-weight: bold;
-            box-shadow: 1px 1px 3px rgba(0,0,0,0.2); margin: 1px;
-        }
-        .weight-circle {
-            width: 20px; height: 20px; background-color: var(--accent); color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold;
-            box-shadow: 1px 1px 3px rgba(0,0,0,0.2); margin: 1px;
-        }
-
-        /* --- Game Elements --- */
+        /* --- GAME & LAB STYLES --- */
         .status-bar { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; color: #7f8c8d; }
         .progress-container { width: 100%; background-color: #e0e0e0; border-radius: 10px; margin: 15px 0; height: 10px; overflow: hidden; }
         .progress-bar { height: 100%; background-color: var(--secondary); width: 0%; transition: width 0.5s ease; }
         .equation-display { font-size: 1.8rem; margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-radius: 10px; border-left: 5px solid var(--primary); }
-        #visual-hint-container { font-size: 1.2rem; margin: 20px 0; padding: 15px; background-color: var(--hint-bg); border: 2px dashed var(--accent); border-radius: 10px; }
-        input[type="number"] { padding: 10px; font-size: 1.2rem; border: 2px solid #bdc3c7; border-radius: 8px; width: 100px; text-align: center; }
-
         .feedback { margin-top: 15px; padding: 15px; border-radius: 8px; display: none; text-align: left; line-height: 1.6; }
         .correct { background-color: #d4edda; color: #155724; }
         .incorrect { background-color: #f8d7da; color: #721c24; }
+        input[type="number"] { padding: 10px; font-size: 1.2rem; border: 2px solid #bdc3c7; border-radius: 8px; width: 100px; text-align: center; }
 
-        /* --- Modal --- */
+        /* Balance Lab */
+        .balance-container { display: flex; flex-direction: column; align-items: center; margin: 20px auto; height: 180px; width: 100%; max-width: 400px; position: relative; }
+        .balance-beam { width: 80%; height: 6px; background-color: var(--balance-color); position: relative; top: 50px; transition: transform 0.5s ease; transform-origin: center; }
+        .tilt-left { transform: rotate(-15deg); } .tilt-right { transform: rotate(15deg); } .balanced { transform: rotate(0deg); }
+        .balance-fulcrum { width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 40px solid var(--balance-color); position: absolute; top: 56px; left: 50%; transform: translateX(-50%); }
+        .pan { width: 80px; height: 5px; background-color: var(--balance-color); position: absolute; top: 30px; }
+        .pan-left { left: 0; } .pan-right { right: 0; }
+        .pan-string { width: 2px; height: 30px; background-color: #bdc3c7; position: absolute; top: 0; }
+        .string-l1 { left: 0; } .string-l2 { left: 80px; } .string-r1 { right: 0; } .string-r2 { right: 80px; }
+        .pan-plate { width: 100px; height: 10px; background-color: #95a5a6; border-radius: 0 0 50px 50px; position: absolute; top: 30px; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 5px; flex-wrap: wrap-reverse; gap: 2px; transition: transform 0.5s ease; }
+        .plate-left { left: -10px; } .plate-right { right: -10px; }
+        .weight-box { width: 25px; height: 25px; background-color: var(--primary); color: white; display: flex; align-items: center; justify-content: center; border-radius: 3px; font-size: 0.9rem; font-family: 'Times New Roman', serif; font-style: italic; font-weight: bold; box-shadow: 1px 1px 3px rgba(0,0,0,0.2); margin: 1px; }
+        .weight-circle { width: 20px; height: 20px; background-color: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; box-shadow: 1px 1px 3px rgba(0,0,0,0.2); margin: 1px; }
+        .lab-controls-top { background: #e1f0ff; padding: 15px; border-radius: 10px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; }
+        .control-group { display: flex; align-items: center; justify-content: space-between; background: white; padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; border: 1px solid #eee; }
+
+        /* Board, Memory, Domino, Bingo Styles (Compact) */
+        .board-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin: 20px auto; max-width: 400px; }
+        .board-cell { aspect-ratio: 1; background-color: var(--board-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; font-size: 0.9rem; }
+        .board-cell.start { background-color: #55efc4; } .board-cell.finish { background-color: #fab1a0; }
+        .player-token { width: 20px; height: 20px; background-color: var(--primary); border: 2px solid white; border-radius: 50%; position: absolute; z-index: 10; transition: all 0.5s ease; }
+        .memory-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin: 20px 0; }
+        .memory-card { aspect-ratio: 3/4; background-color: var(--primary); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; transition: transform 0.3s; }
+        .memory-card.flipped { background-color: white; color: var(--text); border: 2px solid var(--primary); transform: rotateY(180deg); font-size: 1rem; }
+        .memory-card.matched { background-color: #d4edda; border-color: #27ae60; color: #27ae60; cursor: default; }
+        .domino-table { background-color: #2c3e50; min-height: 120px; border-radius: 10px; padding: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin-bottom: 20px; }
+        .domino-piece { display: flex; width: 100px; height: 50px; background-color: white; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.2s; }
+        .domino-piece:hover { transform: translateY(-2px); }
+        .domino-half { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; border-right: 1px solid #ccc; padding: 2px; }
+        .domino-piece.on-table { cursor: default; transform: none; margin: 2px; }
+        .bingo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px auto; max-width: 300px; }
+        .bingo-cell { aspect-ratio: 1; background-color: white; border: 2px solid var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; cursor: pointer; }
+        .bingo-cell.marked { background-color: var(--secondary) !important; color: white !important; border-color: #2ecc71 !important; }
+
+        /* Modal & Zoom */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 0; border-radius: 15px; max-width: 700px; width: 95%; height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
         .modal-header { display: flex; background-color: #f1f2f6; border-bottom: 1px solid #ddd; overflow-x: auto; }
         .tab-btn { flex: 1; padding: 15px 10px; border: none; background: none; cursor: pointer; font-weight: bold; color: #7f8c8d; transition: 0.3s; white-space: nowrap; }
         .tab-btn.active { background-color: white; color: var(--primary); border-bottom: 3px solid var(--primary); }
         .modal-body { padding: 30px; overflow-y: auto; text-align: left; flex-grow: 1; }
-        .example-box { background-color: #f8f9fa; border-left: 4px solid var(--secondary); padding: 10px 15px; margin: 10px 0; }
-        .definition-box { background-color: #eaf2f8; border: 1px solid #d6eaf8; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-        .activity-item { background: #fff; border: 1px solid #eee; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-        .hidden { display: none !important; }
-        .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        .col { flex: 1; min-width: 200px; }
-
-        /* Estilos do Lab */
-        .lab-controls-top { background: #e1f0ff; padding: 15px; border-radius: 10px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; }
-        .control-group { display: flex; align-items: center; justify-content: space-between; background: white; padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; border: 1px solid #eee; }
-
-        /* --- Games CSS --- */
-        .board-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px auto; max-width: 500px; }
-        .board-cell { aspect-ratio: 1; background-color: var(--board-color); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
-        .board-cell.start { background-color: #55efc4; color: #00b894; }
-        .board-cell.finish { background-color: #fab1a0; color: #d63031; }
-        .player-token { width: 30px; height: 30px; background-color: var(--primary); border: 3px solid white; border-radius: 50%; position: absolute; z-index: 10; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: all 0.5s ease; }
-
-        .memory-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px; margin: 20px 0; }
-        .memory-card { aspect-ratio: 3/4; background-color: var(--primary); border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: white; transition: transform 0.3s, background-color 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .memory-card.flipped { background-color: white; color: var(--text); border: 2px solid var(--primary); transform: rotateY(180deg); }
-        .memory-card.matched { background-color: #d4edda; border-color: #27ae60; color: #27ae60; cursor: default; }
-
-        .domino-table { background-color: #2c3e50; min-height: 150px; border-radius: 10px; padding: 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 5px; margin-bottom: 20px; overflow-x: auto; }
-        .domino-hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .domino-piece { display: flex; width: 120px; height: 60px; background-color: white; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.2s; }
-        .domino-piece:hover { transform: translateY(-3px); }
-        .domino-half { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; border-right: 1px solid #ccc; padding: 2px; }
-        .domino-half:last-child { border-right: none; }
-        .domino-piece.on-table { cursor: default; transform: none; box-shadow: none; margin: 2px; }
-
-        .bingo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px auto; max-width: 300px; }
-        .bingo-cell { aspect-ratio: 1; background-color: white; border: 2px solid var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; color: var(--text); cursor: pointer; transition: background-color 0.2s; }
-        .bingo-cell:hover { background-color: #f0f0f0; }
-        .bingo-cell.marked { background-color: var(--secondary) !important; color: white !important; border-color: #2ecc71 !important; }
-        .bingo-ball { width: 100%; background-color: white; border: 2px dashed var(--accent); border-radius: 15px; padding: 20px; margin-bottom: 20px; min-height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-
-        /* --- Zoom Image --- */
         .zoomable-img { cursor: zoom-in; transition: transform 0.3s ease; }
-        .zoomable-img.zoomed { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2000; 
-            object-fit: contain; background-color: rgba(0,0,0,0.9); padding: 20px; 
-            box-sizing: border-box; cursor: zoom-out; 
-            max-width: none !important; border: none !important; border-radius: 0 !important; 
-        }
+        .zoomable-img.zoomed { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2000; object-fit: contain; background-color: rgba(0,0,0,0.9); padding: 20px; box-sizing: border-box; cursor: zoom-out; max-width: none !important; border: none !important; }
     </style>
 </head>
 <body>
 
     <div class="container">
+        <!-- Header -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <div style="font-weight: bold; font-size: 1.2rem; color: var(--text);">⚖️ EquaMaster</div>
             <button class="btn btn-secondary btn-small" onclick="openGuide()">📘 Guia de Estudo</button>
@@ -202,10 +137,11 @@
             <h1>Aventura Algébrica</h1>
             <p>Domina a arte do equilíbrio e resolve problemas com rigor matemático.</p>
             <br>
-            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 0 auto;">
+            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 320px; margin: 0 auto;">
                 <button class="btn" onclick="startGame()">🚀 Iniciar Jornada</button>
                 <button class="btn btn-accent" onclick="startLab()">🧪 Laboratório</button>
                 <button class="btn btn-game" onclick="showGamesMenu()">🎮 Sala de Jogos</button>
+                <button class="btn btn-study" onclick="showStudyMenu()">🧠 Estudo & Revisão</button>
             </div>
             <p style="font-size: 0.9rem; color: #7f8c8d; margin-top: 20px;">Dica: Consulta o novo Guia de Estudo!</p>
         </div>
@@ -215,17 +151,87 @@
             <button class="btn btn-secondary btn-small" onclick="showMenu()" style="float: left;">⬅ Voltar</button>
             <h1 style="clear: both; margin-top: 10px;">Sala de Jogos</h1>
             <p>Escolhe o teu desafio lúdico:</p>
-            <br>
-            <div class="row" style="justify-content: center;">
+            <div class="row">
                 <button class="btn btn-game col" onclick="startBoardGame()">🎲 Tabuleiro</button>
                 <button class="btn btn-game col" onclick="startMemoryGame()">🧠 Memória</button>
             </div>
-            <div class="row" style="justify-content: center;">
+            <div class="row">
                 <button class="btn btn-game col" onclick="startDominoGame()">🁚 Dominó</button>
                 <button class="btn btn-game col" onclick="startBingoGame()">🎱 Bingo</button>
             </div>
         </div>
 
+        <!-- MENU ESTUDO (NOVO) -->
+        <div id="screen-study-menu" class="card hidden">
+            <button class="btn btn-secondary btn-small" onclick="showMenu()" style="float: left;">⬅ Voltar</button>
+            <h1 style="clear: both; margin-top: 10px;">Estudo & Revisão</h1>
+            <p>Consolida os teus conhecimentos:</p>
+            <div class="row">
+                <button class="btn btn-study col" onclick="startFlashcards()">🗂️ Flashcards</button>
+                <button class="btn btn-study col" onclick="startVF()">✅ Verdadeiro ou Falso</button>
+            </div>
+        </div>
+
+        <!-- MODO FLASHCARDS (NOVO) -->
+        <div id="screen-flashcards" class="card hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn btn-secondary btn-small" onclick="showStudyMenu()">Sair</button>
+                <span>Cartão <strong id="fc-counter">1</strong> / <span id="fc-total"></span></span>
+            </div>
+            
+            <div class="flashcard-container" onclick="flipFlashcard()">
+                <div class="flashcard-inner" id="flashcard-inner">
+                    <div class="flashcard-front">
+                        <div class="flashcard-label">Pergunta / Conceito</div>
+                        <div class="flashcard-content" id="fc-front"></div>
+                        <div style="margin-top: 20px; font-size: 0.8rem; color: #999;">(Clica para virar)</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div class="flashcard-label">Resposta / Definição</div>
+                        <div class="flashcard-content" id="fc-back"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="prevFlashcard()">⬅ Anterior</button>
+                <button class="btn" onclick="nextFlashcard()">Próximo ➡</button>
+            </div>
+        </div>
+
+        <!-- MODO V/F (NOVO) -->
+        <div id="screen-vf" class="card hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn btn-secondary btn-small" onclick="showStudyMenu()">Sair</button>
+                <span>Questão <strong id="vf-q-num">1</strong>/10</span>
+            </div>
+            
+            <div class="progress-container"><div id="vf-progress" class="progress-bar"></div></div>
+
+            <div style="min-height: 150px; display: flex; flex-direction: column; justify-content: center;">
+                <p id="vf-question" style="font-size: 1.3rem; font-weight: bold; margin: 20px 0;"></p>
+                <p id="vf-hint" style="color: #7f8c8d; font-style: italic; font-size: 0.9rem; display: none;"></p>
+            </div>
+
+            <div id="vf-buttons">
+                <button class="btn btn-large btn-true" onclick="checkVF(true)">Verdadeiro (V)</button>
+                <button class="btn btn-large btn-false" onclick="checkVF(false)">Falso (F)</button>
+            </div>
+
+            <div id="vf-feedback" class="feedback" style="margin-top: 20px;"></div>
+            <button id="vf-next-btn" class="btn hidden" onclick="nextVF()">Próxima Questão ➡</button>
+        </div>
+
+        <!-- MODO V/F RELATÓRIO (NOVO) -->
+        <div id="screen-vf-report" class="card hidden">
+            <h1>Quiz Concluído!</h1>
+            <p>A tua pontuação: <strong id="vf-final-score" style="font-size: 1.5rem; color: var(--primary);"></strong></p>
+            <div id="vf-review-list" style="text-align: left; max-height: 300px; overflow-y: auto; margin: 20px 0;"></div>
+            <button class="btn" onclick="startVF()">Tentar Novamente</button>
+            <button class="btn btn-secondary" onclick="showStudyMenu()">Voltar ao Menu</button>
+        </div>
+
+        <!-- OUTROS ECRÃS (JORNADA, LAB, JOGOS) MANTIDOS DO CÓDIGO ANTERIOR -->
         <!-- JOGO 1: TABULEIRO -->
         <div id="screen-game-board" class="card hidden">
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -257,7 +263,7 @@
                 <h2>Dominó de Equações</h2>
                 <div style="width: 50px;"></div>
             </div>
-            <p>Liga a <strong>Solução</strong> de uma peça à <strong>Equação</strong> da próxima (ou vice-versa).</p>
+            <p>Liga a <strong>Solução</strong> de uma peça à <strong>Equação</strong> da próxima.</p>
             <div class="domino-table" id="domino-table"><span style="color: white; font-style: italic;">A mesa está vazia...</span></div>
             <h3>A tua Mão:</h3>
             <div class="domino-hand" id="domino-hand"></div>
@@ -310,7 +316,7 @@
             </div>
         </div>
 
-        <!-- LABORATÓRIO (CORRIGIDO) -->
+        <!-- LABORATÓRIO -->
         <div id="screen-lab" class="card hidden">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <button class="btn btn-secondary btn-small" onclick="showMenu()">⬅ Voltar</button>
@@ -350,7 +356,7 @@
             </div>
         </div>
 
-        <!-- RELATÓRIO -->
+        <!-- RELATÓRIO JORNADA -->
         <div id="screen-report" class="card hidden">
             <h1>Jornada Concluída! 🎉</h1>
             <p>Pontuação Final: <strong id="final-score"></strong></p>
@@ -359,7 +365,7 @@
         </div>
     </div>
 
-    <!-- MODAIS -->
+    <!-- MODAIS E GUIA -->
     <div id="modal-board-question" class="modal">
         <div class="modal-content" style="max-height: auto; height: auto; padding: 20px;">
             <h3>Desafio do Tabuleiro</h3>
@@ -418,7 +424,153 @@
     </div>
 
     <script>
-        // --- BASE DE DADOS GLOBAL ---
+        // --- DADOS DOS FLASHCARDS (Extraídos do CSV) ---
+        const flashcardsData = [
+            { q: "Qual é a definição formal de uma equação do 1.º grau?", a: "Expressão matemática onde o maior expoente da incógnita é 1." },
+            { q: "Qual é a Forma Canónica de uma equação do 1.º grau?", a: "A forma canónica é $ax + b = 0$." },
+            { q: "Qual é a condição essencial para a existência da equação?", a: "O coeficiente $a$ deve ser diferente de zero ($a \\ne 0$)." },
+            { q: "O que representa a incógnita ($x$)?", a: "Representa o valor desconhecido a determinar." },
+            { q: "O que é o coeficiente angular ($a$)?", a: "Número real que multiplica a incógnita $x$." },
+            { q: "O que é o termo independente ($b$)?", a: "Termo constante da equação que não depende de $x$." },
+            { q: "O que é a Raiz ou Solução?", a: "Valor da incógnita que torna a igualdade verdadeira." },
+            { q: "O que diz o Princípio Aditivo?", a: "Podemos adicionar/subtrair o mesmo valor a ambos os membros mantendo a igualdade." },
+            { q: "O que é a regra da transposição?", a: "Um termo muda de membro trocando a sua operação pela inversa." },
+            { q: "No problema da Maria ($50x+300=1550$), o que é o $x$?", a: "O número de semanas necessárias para economizar." },
+            { q: "Mover um termo a somar para o outro lado...", a: "...ele passa a subtrair." },
+            { q: "Mover um termo a multiplicar para o outro lado...", a: "...ele passa a dividir." },
+            { q: "Qual o objetivo principal da resolução?", a: "Isolar a incógnita para encontrar o seu valor." },
+            { q: "Retas paralelas e distintas representam um sistema...", a: "Sistema Impossível (SI)." },
+            { q: "Retas coincidentes representam um sistema...", a: "Sistema Possível e Indeterminado (SPI)." }
+        ];
+
+        // --- DADOS DO QUIZ V/F (Gerados anteriormente) ---
+        const vfData = [
+            { q: "A forma canónica de uma equação do 1.º grau é $ax + b = 0$.", correct: true, feedback: "Correto! Esta é a estrutura base onde $a \\ne 0$." },
+            { q: "Para ser uma equação do 1.º grau, o coeficiente $a$ pode ser zero.", correct: false, feedback: "Falso! Se $a=0$, a incógnita desaparece e deixa de ser do 1.º grau." },
+            { q: "O Princípio Aditivo diz que quem está a somar passa a dividir.", correct: false, feedback: "Falso! O inverso da soma é a subtração, não a divisão." },
+            { q: "A raiz de uma equação é o valor que torna a igualdade verdadeira.", correct: true, feedback: "Verdadeiro! É a definição exata de solução." },
+            { q: "Na equação da Maria, o $x$ representava o dinheiro total.", correct: false, feedback: "Falso! O $x$ representava o tempo (número de semanas)." },
+            { q: "Duas retas paralelas e distintas formam um Sistema Possível Indeterminado (SPI).", correct: false, feedback: "Falso! Retas paralelas nunca se tocam, logo é um Sistema Impossível (SI)." },
+            { q: "A solução de $x + 3 = 0$ é $x = 3$.", correct: false, feedback: "Falso! Passando o $+3$ para o outro lado, torna-se $-3$." },
+            { q: "O termo independente é aquele que não depende de $x$.", correct: true, feedback: "Verdadeiro! É o termo constante (representado por $b$)." },
+            { q: "Ao resolver $4x - 8 = 3x + 3$, obtemos $x = 11$.", correct: true, feedback: "Verdadeiro! $4x - 3x = 3 + 8 \\Rightarrow x = 11$." },
+            { q: "Traduzir linguagem verbal para algébrica é irrelevante.", correct: false, feedback: "Falso! É uma competência fundamental para resolver problemas reais." }
+        ];
+
+        // --- NAVEGAÇÃO ENTRE ECRÃS ---
+        const allScreens = ['screen-menu', 'screen-games-menu', 'screen-study-menu', 'screen-game-board', 'screen-game-memory', 'screen-game-domino', 'screen-game-bingo', 'screen-game', 'screen-lab', 'screen-report', 'screen-flashcards', 'screen-vf', 'screen-vf-report'];
+        
+        function hideAllScreens() { allScreens.forEach(id => document.getElementById(id).classList.add('hidden')); }
+        function showMenu() { hideAllScreens(); document.getElementById('screen-menu').classList.remove('hidden'); }
+        function showGamesMenu() { hideAllScreens(); document.getElementById('screen-games-menu').classList.remove('hidden'); }
+        function showStudyMenu() { hideAllScreens(); document.getElementById('screen-study-menu').classList.remove('hidden'); }
+        function openGuide() { document.getElementById('modal-guide').style.display = 'flex'; MathJax.typesetPromise(); }
+        function closeGuide() { document.getElementById('modal-guide').style.display = 'none'; }
+        
+        function switchTab(id) {
+            ['tab-def', 'tab-solve', 'tab-act', 'tab-prob', 'tab-plan'].forEach(i => document.getElementById(i).classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.remove('hidden');
+            event.target.classList.add('active');
+        }
+        function toggleAns(id) { const el = document.getElementById(id); el.classList.toggle('hidden'); MathJax.typesetPromise([el]); }
+        function toggleZoom(img) { img.classList.toggle('zoomed'); }
+
+        // --- FLASHCARDS LOGIC ---
+        let currentFC = 0;
+        function startFlashcards() {
+            hideAllScreens();
+            document.getElementById('screen-flashcards').classList.remove('hidden');
+            currentFC = 0;
+            document.getElementById('fc-total').innerText = flashcardsData.length;
+            loadFlashcard();
+        }
+        function loadFlashcard() {
+            document.getElementById('fc-counter').innerText = currentFC + 1;
+            document.querySelector('.flashcard-container').classList.remove('flipped');
+            // Pequeno delay para mudar o texto depois de desvirar
+            setTimeout(() => {
+                const data = flashcardsData[currentFC];
+                document.getElementById('fc-front').innerText = data.q;
+                document.getElementById('fc-back').innerHTML = data.a;
+                MathJax.typesetPromise(['fc-back', 'fc-front']);
+            }, 200);
+        }
+        function flipFlashcard() { document.querySelector('.flashcard-container').classList.toggle('flipped'); }
+        function nextFlashcard() { if (currentFC < flashcardsData.length - 1) { currentFC++; loadFlashcard(); } }
+        function prevFlashcard() { if (currentFC > 0) { currentFC--; loadFlashcard(); } }
+
+        // --- VERDADEIRO OU FALSO LOGIC ---
+        let currentVF = 0, vfScore = 0, vfAnswers = [];
+        function startVF() {
+            hideAllScreens();
+            document.getElementById('screen-vf').classList.remove('hidden');
+            currentVF = 0; vfScore = 0; vfAnswers = [];
+            loadVF();
+        }
+        function loadVF() {
+            const data = vfData[currentVF];
+            document.getElementById('vf-q-num').innerText = currentVF + 1;
+            document.getElementById('vf-progress').style.width = `${((currentVF)/vfData.length)*100}%`;
+            
+            const qEl = document.getElementById('vf-question');
+            qEl.innerHTML = data.q;
+            MathJax.typesetPromise([qEl]);
+
+            document.getElementById('vf-buttons').classList.remove('hidden');
+            document.getElementById('vf-feedback').style.display = 'none';
+            document.getElementById('vf-next-btn').classList.add('hidden');
+        }
+        function checkVF(userChoice) {
+            const data = vfData[currentVF];
+            const isCorrect = (userChoice === data.correct);
+            const feedbackEl = document.getElementById('vf-feedback');
+            
+            document.getElementById('vf-buttons').classList.add('hidden');
+            
+            if (isCorrect) {
+                vfScore++;
+                feedbackEl.innerHTML = `<strong>Correto! 🎉</strong><br>${data.feedback}`;
+                feedbackEl.className = 'feedback correct';
+            } else {
+                feedbackEl.innerHTML = `<strong>Incorreto...</strong><br>${data.feedback}`;
+                feedbackEl.className = 'feedback incorrect';
+            }
+            feedbackEl.style.display = 'block';
+            vfAnswers.push({ q: data.q, correct: isCorrect, feedback: data.feedback });
+            
+            document.getElementById('vf-next-btn').classList.remove('hidden');
+            MathJax.typesetPromise([feedbackEl]);
+        }
+        function nextVF() {
+            currentVF++;
+            if (currentVF < vfData.length) {
+                loadVF();
+            } else {
+                endVF();
+            }
+        }
+        function endVF() {
+            hideAllScreens();
+            document.getElementById('screen-vf-report').classList.remove('hidden');
+            document.getElementById('vf-final-score').innerText = `${vfScore} / ${vfData.length}`;
+            
+            let html = "";
+            vfAnswers.forEach((item, idx) => {
+                const icon = item.correct ? "✅" : "❌";
+                const color = item.correct ? "#27ae60" : "#c0392b";
+                html += `<div style="border-bottom: 1px solid #eee; padding: 10px 0;">
+                            <strong style="color:${color}">${icon} Questão ${idx+1}</strong><br>
+                            ${item.q}<br>
+                            <em style="font-size:0.9rem; color:#666;">${item.feedback}</em>
+                         </div>`;
+            });
+            const list = document.getElementById('vf-review-list');
+            list.innerHTML = html;
+            MathJax.typesetPromise([list]);
+        }
+
+        // --- LÓGICA EXISTENTE DA JORNADA ---
         const questions = [
             { id: 1, phase: "Visual", text: "Equilibra a balança:", type: "balance", left: { boxes: 1, units: 2 }, right: { boxes: 0, units: 5 }, equation: "$$x + 2 = 5$$", answer: 3, hint: "Retira 2 de cada lado.", explanation: "x = 3" },
             { id: 2, phase: "Visual", text: "Equilibra a balança:", type: "balance", left: { boxes: 1, units: 4 }, right: { boxes: 0, units: 10 }, equation: "$$x + 4 = 10$$", answer: 6, hint: "Retira 4 de cada lado.", explanation: "x = 6" },
@@ -430,27 +582,6 @@
             { id: 8, phase: "Mestre", text: "Frações:", type: "text", visual: "🏆 Fração", visualHint: "Tira 1, depois multiplica.", equation: "$$\\frac{x}{2} + 1 = 5$$", answer: 8, hint: "x/2 = 4", explanation: "x = 8" }
         ];
 
-        // --- NAVEGAÇÃO CORRIGIDA ---
-        const allScreens = ['screen-menu', 'screen-games-menu', 'screen-game-board', 'screen-game-memory', 'screen-game-domino', 'screen-game-bingo', 'screen-game', 'screen-lab', 'screen-report'];
-        
-        function hideAllScreens() {
-            allScreens.forEach(id => document.getElementById(id).classList.add('hidden'));
-        }
-
-        function showMenu() { hideAllScreens(); document.getElementById('screen-menu').classList.remove('hidden'); }
-        function showGamesMenu() { hideAllScreens(); document.getElementById('screen-games-menu').classList.remove('hidden'); }
-        function openGuide() { document.getElementById('modal-guide').style.display = 'flex'; MathJax.typesetPromise(); }
-        function closeGuide() { document.getElementById('modal-guide').style.display = 'none'; }
-        function switchTab(id) {
-            ['tab-def', 'tab-solve', 'tab-act', 'tab-prob', 'tab-plan'].forEach(i => document.getElementById(i).classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.remove('hidden');
-            event.target.classList.add('active');
-        }
-        function toggleAns(id) { const el = document.getElementById(id); el.classList.toggle('hidden'); MathJax.typesetPromise([el]); }
-        function toggleZoom(img) { img.classList.toggle('zoomed'); }
-
-        // --- ESTADO E JOGO ORIGINAL ---
         let currentQuestionIndex = 0, score = 0, lives = 3, userAnswers = [];
         let labState = { xValue: 5, left: { x: 1, u: 0 }, right: { x: 0, u: 5 } };
 
@@ -481,7 +612,6 @@
             else { ba.classList.add('hidden'); va.classList.remove('hidden'); va.innerHTML = q.visual; }
             MathJax.typesetPromise();
         }
-        function showVisualHint() { document.getElementById('btn-visual-hint').classList.add('hidden'); document.getElementById('visual-hint-container').classList.remove('hidden'); MathJax.typesetPromise(); }
         function checkAnswer() {
             const val = parseFloat(document.getElementById('user-input').value);
             const q = questions[currentQuestionIndex];
@@ -506,7 +636,7 @@
             document.getElementById('report-details').innerHTML = html + "</ul>";
         }
 
-        // --- LABORATÓRIO (COM CORREÇÃO DE INCLINAÇÃO) ---
+        // --- LÓGICA DO LABORATÓRIO (COM CORREÇÃO DE INCLINAÇÃO) ---
         function startLab() {
             hideAllScreens(); document.getElementById('screen-lab').classList.remove('hidden');
             renderBalance({boxes:0, units:0},{boxes:0, units:0}, 'lab-balance-area'); updateLab();
@@ -547,7 +677,8 @@
             for(let i=0; i<r.units; i++) pr.innerHTML += `<div class="weight-circle">1</div>`;
         }
 
-        // --- JOGO 1: TABULEIRO ---
+        // --- LÓGICA DOS OUTROS JOGOS (Tabuleiro, Memória, Dominó, Bingo) ---
+        // TABULEIRO
         let boardPos = 0, boardQ = null;
         function startBoardGame() { hideAllScreens(); document.getElementById('screen-game-board').classList.remove('hidden'); boardPos = 0; renderBoard(); }
         function renderBoard() {
@@ -576,7 +707,7 @@
             } else { fb.innerHTML = "<span style='color:red'>Errado!</span>"; setTimeout(() => { document.getElementById('modal-board-question').style.display = 'none'; }, 1000); }
         }
 
-        // --- JOGO 2: MEMÓRIA ---
+        // MEMÓRIA
         let memoryCards = [], flippedCards = [], memoryScore = 0;
         const memoryPairs = [{id:1,eq:"$$x+2=5$$",sol:"$$x=3$$"},{id:2,eq:"$$2x=8$$",sol:"$$x=4$$"},{id:3,eq:"$$x-1=2$$",sol:"$$x=3$$"},{id:4,eq:"$$3x=9$$",sol:"$$x=3$$"},{id:5,eq:"$$x+5=10$$",sol:"$$x=5$$"},{id:6,eq:"$$2x+1=5$$",sol:"$$x=2$$"}];
         function startMemoryGame() {
@@ -604,7 +735,7 @@
             }
         }
 
-        // --- JOGO 3: DOMINÓ ---
+        // DOMINÓ
         let dominoHand = [], dominoTable = [];
         const dominoData = [{l:"Início",r:"$$x+1=3$$"},{l:"$$x=2$$",r:"$$2x=8$$"},{l:"$$x=4$$",r:"$$x-1=5$$"},{l:"$$x=6$$",r:"$$3x=15$$"},{l:"$$x=5$$",r:"$$x+x=10$$"},{l:"$$x=5$$",r:"$$4x=4$$"},{l:"$$x=1$$",r:"Fim"}];
         function startDominoGame() {
@@ -630,7 +761,7 @@
             else { document.getElementById('domino-msg').innerText = "Não encaixa!"; }
         }
 
-        // --- JOGO 4: BINGO ---
+        // BINGO
         let bingoNumbers = [], bingoCalled = [], bingoCurrentTarget = null, bingoCurrentExpl = "";
         function startBingoGame() {
             hideAllScreens(); document.getElementById('screen-game-bingo').classList.remove('hidden');
