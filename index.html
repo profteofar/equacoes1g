@@ -368,6 +368,7 @@
                 <button class="tab-btn" onclick="switchTab('tab-solve')">2. Como Resolver</button>
                 <button class="tab-btn" onclick="switchTab('tab-act')">3. Atividades</button>
                 <button class="tab-btn" onclick="switchTab('tab-prob')">4. Problemas</button>
+                <button class="tab-btn" onclick="switchTab('tab-plan')">5. Plano de Aula</button>
             </div>
             
             <div id="tab-def" class="modal-body">
@@ -393,6 +394,13 @@
             <div id="tab-prob" class="modal-body hidden">
                 <h2>Problemas</h2>
                 <div class="activity-item"><p>O dobro de um número somado com 5 é 91.</p><button class="btn btn-small btn-secondary" onclick="toggleAns('sol1')">Solução</button><div id="sol1" class="hidden">$$2x+5=91 \Rightarrow x=43$$</div></div>
+            </div>
+            <div id="tab-plan" class="modal-body hidden">
+                <h2>Plano de Aula (Infografia)</h2>
+                <p>Este guia visual ajuda o professor a integrar a aplicação na sala de aula.</p>
+                <div style="text-align: center;">
+                    <img src="./infografia-plano.jpg" alt="Infografia do Plano de Aula" style="max-width: 100%; height: auto; border: 2px solid #ddd; border-radius: 8px;">
+                </div>
             </div>
             <div style="padding: 15px; text-align: center; border-top: 1px solid #ddd;">
                 <button class="btn" style="margin: 0;" onclick="closeGuide()">Fechar Guia</button>
@@ -425,7 +433,7 @@
         function openGuide() { document.getElementById('modal-guide').style.display = 'flex'; MathJax.typesetPromise(); }
         function closeGuide() { document.getElementById('modal-guide').style.display = 'none'; }
         function switchTab(id) {
-            ['tab-def', 'tab-solve', 'tab-act', 'tab-prob'].forEach(i => document.getElementById(i).classList.add('hidden'));
+            ['tab-def', 'tab-solve', 'tab-act', 'tab-prob', 'tab-plan'].forEach(i => document.getElementById(i).classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.remove('hidden');
             event.target.classList.add('active');
