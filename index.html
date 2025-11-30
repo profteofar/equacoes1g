@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mestre das Equações</title>
     
-    <!-- MathJax Configuration -->
+    <!-- Configuração MathJax -->
     <script>
     window.MathJax = {
       tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']], 
         displayMath: [['$$', '$$'], ['\\[', '\\]']]
       },
-      svg: { fontCache: 'global' }
+      svg: { fontCache: 'global' },
+      startup: {
+        typeset: false 
+      }
     };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -26,9 +29,10 @@
             --text: #2c3e50;
             --card-bg: #ffffff;
             --hint-bg: #fff0f0;
-            --study-color: #f39c12; /* Cor para o novo módulo */
+            --study-color: #f39c12;
             --balance-color: #34495e;
             --board-color: #ffeaa7;
+            --cert-gold: #f1c40f;
         }
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--background); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
@@ -53,10 +57,16 @@
         .btn-accent { background-color: var(--accent); }
         .btn-game { background-color: #9b59b6; }
         .btn-study { background-color: var(--study-color); }
+        .btn-cert { background-color: var(--cert-gold); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .btn-small { font-size: 0.85rem; padding: 5px 15px; }
         .btn-large { padding: 15px 30px; font-size: 1.2rem; min-width: 150px; }
         .btn-true { background-color: #27ae60; }
         .btn-false { background-color: #c0392b; }
+        .btn-option { background-color: white; color: var(--text); border: 2px solid #e0e0e0; width: 100%; text-align: left; margin: 5px 0; border-radius: 10px; padding: 15px; transition: all 0.2s; }
+        .btn-option:hover { background-color: #f9f9f9; border-color: var(--primary); }
+        .btn-option.selected-correct { background-color: #d4edda; border-color: #27ae60; color: #155724; }
+        .btn-option.selected-wrong { background-color: #f8d7da; border-color: #721c24; color: #721c24; }
+        .btn-disabled { background-color: #ccc; cursor: not-allowed; box-shadow: none; transform: none !important; opacity: 0.7; }
 
         /* --- FLASHCARDS STYLES --- */
         .flashcard-container { perspective: 1000px; width: 100%; max-width: 500px; height: 300px; margin: 20px auto; cursor: pointer; }
@@ -68,6 +78,28 @@
         .flashcard-content { font-size: 1.3rem; line-height: 1.5; }
         .flashcard-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; opacity: 0.8; }
 
+        /* --- REPORT STYLES --- */
+        .report-stats { display: flex; justify-content: space-around; margin: 20px 0; flex-wrap: wrap; }
+        .stat-box { background: #f8f9fa; padding: 15px; border-radius: 10px; min-width: 80px; margin: 5px; text-align: center; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; display: block; }
+        .stat-label { font-size: 0.8rem; color: #7f8c8d; text-transform: uppercase; }
+        .review-item { text-align: left; padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 10px; }
+        .review-q { font-weight: bold; margin-bottom: 5px; }
+        .review-status { font-size: 0.9rem; margin-bottom: 5px; }
+
+        /* --- CERTIFICATE STYLES --- */
+        .certificate-container { border: 10px solid var(--primary); padding: 40px; position: relative; background: #fff url('data:image/svg+xml;utf8,<svg width="100" height="100" transform="rotate(25)" opacity="0.05" version="1.1" xmlns="http://www.w3.org/2000/svg"><text x="10" y="50" font-size="60">🎓</text></svg>'); text-align: center; color: #333; font-family: 'Georgia', serif; }
+        .cert-header { font-size: 2.5rem; font-weight: bold; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
+        .cert-sub { font-size: 1.2rem; color: #777; margin-bottom: 30px; }
+        .cert-body { font-size: 1.5rem; margin: 20px 0; line-height: 1.6; }
+        .cert-name { border-bottom: 2px solid #333; padding: 0 20px; font-weight: bold; color: #000; outline: none; }
+        .cert-stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 20px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 20px 0; }
+        .cert-stat { font-family: sans-serif; }
+        .cert-stat strong { display: block; font-size: 1.2rem; color: var(--primary); }
+        .cert-footer { margin-top: 40px; font-size: 0.9rem; color: #999; display: flex; justify-content: space-between; align-items: flex-end; }
+        .cert-seal { width: 80px; height: 80px; background: var(--cert-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-family: sans-serif; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transform: rotate(-15deg); }
+        .cert-grade-box { margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 8px; border: 1px dashed #ccc; }
+
         /* --- GAME & LAB STYLES --- */
         .status-bar { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; color: #7f8c8d; }
         .progress-container { width: 100%; background-color: #e0e0e0; border-radius: 10px; margin: 15px 0; height: 10px; overflow: hidden; }
@@ -76,9 +108,10 @@
         .feedback { margin-top: 15px; padding: 15px; border-radius: 8px; display: none; text-align: left; line-height: 1.6; }
         .correct { background-color: #d4edda; color: #155724; }
         .incorrect { background-color: #f8d7da; color: #721c24; }
+        .skipped { background-color: #fff3cd; color: #856404; }
         input[type="number"] { padding: 10px; font-size: 1.2rem; border: 2px solid #bdc3c7; border-radius: 8px; width: 100px; text-align: center; }
 
-        /* Balance Lab */
+        /* Balance Lab CSS */
         .balance-container { display: flex; flex-direction: column; align-items: center; margin: 20px auto; height: 180px; width: 100%; max-width: 400px; position: relative; }
         .balance-beam { width: 80%; height: 6px; background-color: var(--balance-color); position: relative; top: 50px; transition: transform 0.5s ease; transform-origin: center; }
         .tilt-left { transform: rotate(-15deg); } .tilt-right { transform: rotate(15deg); } .balanced { transform: rotate(0deg); }
@@ -121,6 +154,13 @@
         .modal-body { padding: 30px; overflow-y: auto; text-align: left; flex-grow: 1; }
         .zoomable-img { cursor: zoom-in; transition: transform 0.3s ease; }
         .zoomable-img.zoomed { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2000; object-fit: contain; background-color: rgba(0,0,0,0.9); padding: 20px; box-sizing: border-box; cursor: zoom-out; max-width: none !important; border: none !important; }
+        
+        @media print {
+            body * { visibility: hidden; }
+            #screen-certificate, #screen-certificate * { visibility: visible; }
+            #screen-certificate { position: absolute; left: 0; top: 0; width: 100%; margin: 0; border: none; box-shadow: none; }
+            .btn-noprint { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -142,6 +182,7 @@
                 <button class="btn btn-accent" onclick="startLab()">🧪 Laboratório</button>
                 <button class="btn btn-game" onclick="showGamesMenu()">🎮 Sala de Jogos</button>
                 <button class="btn btn-study" onclick="showStudyMenu()">🧠 Estudo & Revisão</button>
+                <button id="btn-cert-main" class="btn btn-cert btn-disabled" onclick="showCertificate()" disabled>🏆 Certificado</button>
             </div>
             <p style="font-size: 0.9rem; color: #7f8c8d; margin-top: 20px;">Dica: Consulta o novo Guia de Estudo!</p>
         </div>
@@ -161,7 +202,7 @@
             </div>
         </div>
 
-        <!-- MENU ESTUDO (NOVO) -->
+        <!-- MENU ESTUDO -->
         <div id="screen-study-menu" class="card hidden">
             <button class="btn btn-secondary btn-small" onclick="showMenu()" style="float: left;">⬅ Voltar</button>
             <h1 style="clear: both; margin-top: 10px;">Estudo & Revisão</h1>
@@ -170,15 +211,17 @@
                 <button class="btn btn-study col" onclick="startFlashcards()">🗂️ Flashcards</button>
                 <button class="btn btn-study col" onclick="startVF()">✅ Verdadeiro ou Falso</button>
             </div>
+            <div class="row">
+                <button class="btn btn-study col" onclick="startQuiz()">📝 Quiz Geral</button>
+            </div>
         </div>
 
-        <!-- MODO FLASHCARDS (NOVO) -->
+        <!-- FLASHCARDS -->
         <div id="screen-flashcards" class="card hidden">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <button class="btn btn-secondary btn-small" onclick="showStudyMenu()">Sair</button>
                 <span>Cartão <strong id="fc-counter">1</strong> / <span id="fc-total"></span></span>
             </div>
-            
             <div class="flashcard-container" onclick="flipFlashcard()">
                 <div class="flashcard-inner" id="flashcard-inner">
                     <div class="flashcard-front">
@@ -192,385 +235,185 @@
                     </div>
                 </div>
             </div>
-
             <div style="margin-top: 20px;">
                 <button class="btn btn-secondary" onclick="prevFlashcard()">⬅ Anterior</button>
                 <button class="btn" onclick="nextFlashcard()">Próximo ➡</button>
             </div>
         </div>
 
-        <!-- MODO V/F (NOVO) -->
+        <!-- QUIZ VF -->
         <div id="screen-vf" class="card hidden">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <button class="btn btn-secondary btn-small" onclick="showStudyMenu()">Sair</button>
                 <span>Questão <strong id="vf-q-num">1</strong>/10</span>
             </div>
-            
             <div class="progress-container"><div id="vf-progress" class="progress-bar"></div></div>
-
             <div style="min-height: 150px; display: flex; flex-direction: column; justify-content: center;">
                 <p id="vf-question" style="font-size: 1.3rem; font-weight: bold; margin: 20px 0;"></p>
                 <p id="vf-hint" style="color: #7f8c8d; font-style: italic; font-size: 0.9rem; display: none;"></p>
             </div>
-
             <div id="vf-buttons">
                 <button class="btn btn-large btn-true" onclick="checkVF(true)">Verdadeiro (V)</button>
                 <button class="btn btn-large btn-false" onclick="checkVF(false)">Falso (F)</button>
             </div>
-
             <div id="vf-feedback" class="feedback" style="margin-top: 20px;"></div>
-            <button id="vf-next-btn" class="btn hidden" onclick="nextVF()">Próxima Questão ➡</button>
+            <button id="vf-next-btn" class="btn" onclick="nextVF()">Próxima Questão ➡</button>
         </div>
 
-        <!-- MODO V/F RELATÓRIO (NOVO) -->
-        <div id="screen-vf-report" class="card hidden">
-            <h1>Quiz Concluído!</h1>
-            <p>A tua pontuação: <strong id="vf-final-score" style="font-size: 1.5rem; color: var(--primary);"></strong></p>
-            <div id="vf-review-list" style="text-align: left; max-height: 300px; overflow-y: auto; margin: 20px 0;"></div>
-            <button class="btn" onclick="startVF()">Tentar Novamente</button>
+        <!-- QUIZ GERAL -->
+        <div id="screen-quiz" class="card hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn btn-secondary btn-small" onclick="showStudyMenu()">Sair</button>
+                <span>Questão <strong id="quiz-q-num">1</strong>/10</span>
+            </div>
+            <div class="progress-container"><div id="quiz-progress" class="progress-bar"></div></div>
+            <div style="min-height: 120px;">
+                <p id="quiz-question" style="font-size: 1.2rem; font-weight: bold; margin: 20px 0;"></p>
+                <p id="quiz-hint" style="color: #7f8c8d; font-style: italic; font-size: 0.9rem; margin-bottom: 15px;">💡 Dica: <span id="quiz-hint-text"></span></p>
+            </div>
+            <div id="quiz-options"></div>
+            <div id="quiz-feedback" class="feedback" style="margin-top: 20px;"></div>
+            <button id="quiz-next-btn" class="btn" onclick="nextQuiz()">Próxima Questão ➡</button>
+        </div>
+
+        <!-- RELATORIO UNIFICADO -->
+        <div id="screen-results-report" class="card hidden">
+            <h1>Questionário Concluído!</h1>
+            <div class="report-stats">
+                <div class="stat-box"><span class="stat-label">Pontuação</span><span class="stat-value" id="res-score"></span></div>
+                <div class="stat-box"><span class="stat-label">Precisão</span><span class="stat-value" id="res-accuracy"></span></div>
+            </div>
+            <div class="report-stats" style="margin-top: 0;">
+                <div class="stat-box" style="background-color: #d4edda; color: #155724;"><span class="stat-label">Corretas</span><span class="stat-value" id="res-correct">0</span></div>
+                <div class="stat-box" style="background-color: #f8d7da; color: #721c24;"><span class="stat-label">Erradas</span><span class="stat-value" id="res-wrong">0</span></div>
+                <div class="stat-box" style="background-color: #fff3cd; color: #856404;"><span class="stat-label">Ignoradas</span><span class="stat-value" id="res-skipped">0</span></div>
+            </div>
+            <div id="res-review-container" class="hidden" style="margin: 20px 0;">
+                <h3>Revisão do Questionário</h3>
+                <div id="res-review-list" style="text-align: left; max-height: 300px; overflow-y: auto; background: #fff; border-radius: 10px; padding: 10px;"></div>
+            </div>
+            <button class="btn" onclick="toggleReview()">Rever questionário</button>
+            <button class="btn btn-secondary" onclick="restartCurrentQuiz()">Responder novamente</button>
             <button class="btn btn-secondary" onclick="showStudyMenu()">Voltar ao Menu</button>
         </div>
 
-        <!-- OUTROS ECRÃS (JORNADA, LAB, JOGOS) MANTIDOS DO CÓDIGO ANTERIOR -->
-        <!-- JOGO 1: TABULEIRO -->
-        <div id="screen-game-board" class="card hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <button class="btn btn-secondary btn-small" onclick="showGamesMenu()">Sair</button>
-                <h2>Corrida das Equações</h2>
-                <div style="width: 50px;"></div>
+        <!-- CERTIFICADO -->
+        <div id="screen-certificate" class="card hidden" style="max-width: 700px; background-color: #fff;">
+            <div class="certificate-container">
+                <div class="cert-header">Certificado de Excelência</div>
+                <div class="cert-sub">Mestre das Equações</div>
+                <div class="cert-body">
+                    Certifica-se que<br>
+                    <input type="text" class="cert-name" placeholder="Escreva o seu nome aqui" style="border: none; border-bottom: 2px solid #333; font-size: 1.5rem; text-align: center; margin: 10px 0; background: transparent; width: 80%;"><br>
+                    concluiu com sucesso todas as etapas da formação em Equações de 1.º Grau.
+                </div>
+                <div class="cert-stats-grid">
+                    <div class="cert-stat"><strong>Jornada</strong><span id="cert-score-jornada">0</span>%</div>
+                    <div class="cert-stat"><strong>Verdadeiro/Falso</strong><span id="cert-score-vf">0</span>%</div>
+                    <div class="cert-stat"><strong>Quiz Geral</strong><span id="cert-score-quiz">0</span>%</div>
+                </div>
+                
+                <div class="cert-grade-box">
+                    <strong>Avaliação Global: </strong> <span id="cert-score-global" style="font-size: 1.2rem; color: var(--primary);">0</span>%
+                    <br>
+                    <span id="cert-grade" style="text-transform: uppercase; font-weight: bold; letter-spacing: 1px; color: #333; font-size: 1.1rem; margin-top: 5px; display: inline-block;"></span>
+                </div>
+
+                <div class="cert-footer">
+                    <div class="cert-seal">TOP<br>SCORE</div>
+                    <div><div id="cert-date">Data: </div><div style="margin-top: 5px; font-weight: bold;">Assinatura Digital: EquaMaster App</div></div>
+                </div>
             </div>
-            <div class="board-grid" id="board-container"></div>
-            <p id="board-message">Lança o dado para começar!</p>
-            <button id="btn-roll-dice" class="btn btn-game" onclick="rollDice()">🎲 Lançar Dado</button>
+            <div style="margin-top: 20px;" class="btn-noprint">
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir / PDF</button>
+                <button class="btn btn-secondary" onclick="showMenu()">Voltar</button>
+            </div>
         </div>
 
-        <!-- JOGO 2: MEMÓRIA -->
-        <div id="screen-game-memory" class="card hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <button class="btn btn-secondary btn-small" onclick="showGamesMenu()">Sair</button>
-                <h2>Memória Algébrica</h2>
-                <span>Pares: <strong id="memory-score">0</strong>/6</span>
-            </div>
-            <p>Encontra o par: Equação ↔ Solução</p>
-            <div class="memory-grid" id="memory-container"></div>
-            <button id="btn-restart-memory" class="btn hidden" onclick="startMemoryGame()">Jogar Novamente</button>
-        </div>
-
-        <!-- JOGO 3: DOMINÓ -->
-        <div id="screen-game-domino" class="card hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <button class="btn btn-secondary btn-small" onclick="showGamesMenu()">Sair</button>
-                <h2>Dominó de Equações</h2>
-                <div style="width: 50px;"></div>
-            </div>
-            <p>Liga a <strong>Solução</strong> de uma peça à <strong>Equação</strong> da próxima.</p>
-            <div class="domino-table" id="domino-table"><span style="color: white; font-style: italic;">A mesa está vazia...</span></div>
-            <h3>A tua Mão:</h3>
-            <div class="domino-hand" id="domino-hand"></div>
-            <p id="domino-msg" style="margin-top: 15px; color: var(--accent); font-weight: bold;"></p>
-            <button id="btn-restart-domino" class="btn hidden" onclick="startDominoGame()">Jogar Novamente</button>
-        </div>
-
-        <!-- JOGO 4: BINGO -->
-        <div id="screen-game-bingo" class="card hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <button class="btn btn-secondary btn-small" onclick="showGamesMenu()">Sair</button>
-                <h2>Bingo Algébrico</h2>
-                <div style="width: 50px;"></div>
-            </div>
-            <div class="bingo-ball">
-                <span style="font-size: 0.9rem; color: #7f8c8d; text-transform: uppercase; font-weight: bold;">Chamada Atual</span>
-                <div id="bingo-current-call" style="font-size: 2rem; margin-top: 10px;"></div>
-            </div>
-            <p>Resolve a equação e marca o resultado na tua cartela!</p>
-            <div class="bingo-grid" id="bingo-card"></div>
-            <button id="btn-next-bingo" class="btn btn-game" onclick="nextBingoCall()">Sorteiar Próxima Equação 🎱</button>
-            <div id="bingo-status" style="margin-top: 15px; font-weight: bold; min-height: 40px; padding: 10px;"></div>
-        </div>
-
-        <!-- JORNADA -->
+        <!-- JORNADA & JOGOS & LAB -->
         <div id="screen-game" class="card hidden">
-            <div class="status-bar">
-                <span id="level-indicator">Nível 1</span>
-                <span>❤️ <span id="lives">3</span></span>
-                <span>⭐ <span id="score">0</span></span>
-                <button class="btn btn-secondary btn-small" onclick="showMenu()" style="margin: 0; padding: 2px 10px;">Sair</button>
-            </div>
+            <div class="status-bar"><span id="level-indicator">Nível 1</span><span>❤️ <span id="lives">3</span></span><span>⭐ <span id="score">0</span></span><button class="btn btn-secondary btn-small" onclick="showMenu()" style="margin: 0; padding: 2px 10px;">Sair</button></div>
             <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
             <div id="balance-area" class="hidden"></div>
             <div id="visual-text-area" class="visual-aid hidden"></div>
             <p id="question-text" style="font-size: 1.1rem;"></p>
             <div class="equation-display" id="question-equation"></div>
-            <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-                <span style="font-size: 1.5rem; font-family: 'Times New Roman', serif; font-style: italic;">x = </span>
-                <input type="number" id="user-input" autocomplete="off">
-            </div>
-            <div id="visual-hint-wrapper" style="margin-top: 15px;">
-                <button id="btn-visual-hint" class="btn btn-accent hidden" onclick="showVisualHint()">👁️ Ver Pista</button>
-                <div id="visual-hint-container" class="hidden"></div>
-            </div>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 10px;"><span style="font-size: 1.5rem; font-family: 'Times New Roman', serif; font-style: italic;">x = </span><input type="number" id="user-input" autocomplete="off"></div>
+            <div id="visual-hint-wrapper" style="margin-top: 15px;"><button id="btn-visual-hint" class="btn btn-accent hidden" onclick="showVisualHint()">👁️ Ver Pista</button><div id="visual-hint-container" class="hidden"></div></div>
             <div id="feedback-area" class="feedback"></div>
-            <div style="margin-top: 20px;">
-                <button id="btn-check" class="btn" onclick="checkAnswer()">Verificar Solução</button>
-                <button id="btn-next" class="btn hidden" onclick="nextQuestion()">Próximo Desafio ➡</button>
-            </div>
+            <div style="margin-top: 20px;"><button id="btn-check" class="btn" onclick="checkAnswer()">Verificar Solução</button><button id="btn-next" class="btn hidden" onclick="nextQuestion()">Próximo Desafio ➡</button></div>
         </div>
 
-        <!-- LABORATÓRIO -->
         <div id="screen-lab" class="card hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <button class="btn btn-secondary btn-small" onclick="showMenu()">⬅ Voltar</button>
-                <h2>🧪 Laboratório</h2>
-                <div style="width: 80px;"></div>
-            </div>
-            <div class="lab-controls-top">
-                <label for="lab-x-value">Defina o "Valor Secreto" de <strong>$x$</strong>:</label>
-                <input type="range" id="lab-x-value" min="1" max="10" value="5" oninput="updateLab()" style="width: 150px;">
-                <span id="lab-x-display" style="font-weight: bold; font-size: 1.5rem; color: var(--accent); margin-left: 10px; width: 30px;">5</span>
-            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;"><button class="btn btn-secondary btn-small" onclick="showMenu()">⬅ Voltar</button><h2>🧪 Laboratório</h2><div style="width: 80px;"></div></div>
+            <div class="lab-controls-top"><label>Valor de x:</label><input type="range" id="lab-x-value" min="1" max="10" value="5" oninput="updateLab()" style="width: 150px;"><span id="lab-x-display" style="font-weight: bold; font-size: 1.5rem; color: var(--accent); margin-left: 10px; width: 30px;">5</span></div>
             <div id="lab-balance-area"></div>
             <div class="equation-display" id="lab-equation" style="min-height: 80px; display: flex; align-items: center; justify-content: center;"></div>
             <div class="row">
-                <div class="col card" style="background: #f8f9fa; padding: 15px; margin: 0;">
-                    <h3 style="margin-top: 0;">Prato Esquerdo</h3>
-                    <div class="control-group">
-                        <span>Caixas ($x$):</span>
-                        <div><button class="btn btn-small btn-secondary" onclick="adjustLab('left', 'x', -1)">-</button><span id="count-left-x" style="font-weight: bold; margin: 0 5px;">0</span><button class="btn btn-small" onclick="adjustLab('left', 'x', 1)">+</button></div>
-                    </div>
-                    <div class="control-group">
-                        <span>Pesos (1):</span>
-                        <div><button class="btn btn-small btn-secondary" onclick="adjustLab('left', 'u', -1)">-</button><span id="count-left-u" style="font-weight: bold; margin: 0 5px;">0</span><button class="btn btn-small" onclick="adjustLab('left', 'u', 1)">+</button></div>
-                    </div>
-                </div>
-                <div class="col card" style="background: #f8f9fa; padding: 15px; margin: 0;">
-                    <h3 style="margin-top: 0;">Prato Direito</h3>
-                    <div class="control-group">
-                        <span>Caixas ($x$):</span>
-                        <div><button class="btn btn-small btn-secondary" onclick="adjustLab('right', 'x', -1)">-</button><span id="count-right-x" style="font-weight: bold; margin: 0 5px;">0</span><button class="btn btn-small" onclick="adjustLab('right', 'x', 1)">+</button></div>
-                    </div>
-                     <div class="control-group">
-                        <span>Pesos (1):</span>
-                        <div><button class="btn btn-small btn-secondary" onclick="adjustLab('right', 'u', -1)">-</button><span id="count-right-u" style="font-weight: bold; margin: 0 5px;">0</span><button class="btn btn-small" onclick="adjustLab('right', 'u', 1)">+</button></div>
-                    </div>
-                </div>
+                <div class="col card" style="background: #f8f9fa; padding: 15px; margin: 0;"><h3 style="margin-top: 0;">Esquerda</h3><div class="control-group"><span>Caixas (x):</span><div><button class="btn btn-small btn-secondary" onclick="adjustLab('left', 'x', -1)">-</button><span id="count-left-x" style="font-weight: bold; margin: 0 5px;">0</span><button class="btn btn-small" onclick="adjustLab('left', 'x', 1)">+</button></div></div><div class="control-group"><span>Pesos (1):</span><div><button class="btn btn-small btn-secondary" onclick="adjustLab('left', 'u', -1)">-</button><span id="count-left-u" style="font-weight: bold; margin: 0 5px;">0</span><button class="btn btn-small" onclick="adjustLab('left', 'u', 1)">+</button></div></div></div>
+                <div class="col card" style="background: #f8f9fa; padding: 15px; margin: 0;"><h3 style="margin-top: 0;">Direita</h3><div class="control-group"><span>Caixas (x):</span><div><button class="btn btn-small btn-secondary" onclick="adjustLab('right', 'x', -1)">-</button><span id="count-right-x" style="font-weight: bold; margin: 0 5px;">0</span><button class="btn btn-small" onclick="adjustLab('right', 'x', 1)">+</button></div></div><div class="control-group"><span>Pesos (1):</span><div><button class="btn btn-small btn-secondary" onclick="adjustLab('right', 'u', -1)">-</button><span id="count-right-u" style="font-weight: bold; margin: 0 5px;">0</span><button class="btn btn-small" onclick="adjustLab('right', 'u', 1)">+</button></div></div></div>
             </div>
         </div>
 
-        <!-- RELATÓRIO JORNADA -->
+        <div id="screen-game-board" class="card hidden"><div style="display: flex; justify-content: space-between; align-items: center;"><button class="btn btn-secondary btn-small" onclick="showGamesMenu()">Sair</button><h2>Corrida das Equações</h2><div style="width: 50px;"></div></div><div class="board-grid" id="board-container"></div><p id="board-message">Lança o dado para começar!</p><button id="btn-roll-dice" class="btn btn-game" onclick="rollDice()">🎲 Lançar Dado</button></div>
+        <div id="screen-game-memory" class="card hidden"><div style="display: flex; justify-content: space-between; align-items: center;"><button class="btn btn-secondary btn-small" onclick="showGamesMenu()">Sair</button><h2>Memória Algébrica</h2><span>Pares: <strong id="memory-score">0</strong>/6</span></div><p>Encontra o par: Equação ↔ Solução</p><div class="memory-grid" id="memory-container"></div><button id="btn-restart-memory" class="btn hidden" onclick="startMemoryGame()">Jogar Novamente</button></div>
+        <div id="screen-game-domino" class="card hidden"><div style="display: flex; justify-content: space-between; align-items: center;"><button class="btn btn-secondary btn-small" onclick="showGamesMenu()">Sair</button><h2>Dominó de Equações</h2><div style="width: 50px;"></div></div><p>Liga a <strong>Solução</strong> de uma peça à <strong>Equação</strong> da próxima.</p><div class="domino-table" id="domino-table"><span style="color: white; font-style: italic;">A mesa está vazia...</span></div><h3>A tua Mão:</h3><div class="domino-hand" id="domino-hand"></div><p id="domino-msg" style="margin-top: 15px; color: var(--accent); font-weight: bold;"></p><button id="btn-restart-domino" class="btn hidden" onclick="startDominoGame()">Jogar Novamente</button></div>
+        <div id="screen-game-bingo" class="card hidden"><div style="display: flex; justify-content: space-between; align-items: center;"><button class="btn btn-secondary btn-small" onclick="showGamesMenu()">Sair</button><h2>Bingo Algébrico</h2><div style="width: 50px;"></div></div><div class="bingo-ball"><span style="font-size: 0.9rem; color: #7f8c8d; text-transform: uppercase; font-weight: bold;">Chamada Atual</span><div id="bingo-current-call" style="font-size: 2rem; margin-top: 10px;"></div></div><p>Resolve a equação e marca o resultado na tua cartela!</p><div class="bingo-grid" id="bingo-card"></div><button id="btn-next-bingo" class="btn btn-game" onclick="nextBingoCall()">Sorteiar Próxima Equação 🎱</button><div id="bingo-status" style="margin-top: 15px; font-weight: bold; min-height: 40px; padding: 10px;"></div></div>
+        
+        <!-- Updated Journey Report Screen -->
         <div id="screen-report" class="card hidden">
             <h1>Jornada Concluída! 🎉</h1>
             <p>Pontuação Final: <strong id="final-score"></strong></p>
-            <div id="report-details" style="text-align: left; margin: 20px 0; max-height: 300px; overflow-y: auto;"></div>
-            <button class="btn" onclick="location.reload()">Jogar Novamente</button>
+            
+            <div id="journey-review-container" class="hidden" style="margin: 20px 0;">
+                <h3>Revisão da Jornada</h3>
+                <div id="report-details" style="text-align: left; max-height: 300px; overflow-y: auto; background: #fff; border-radius: 10px; padding: 10px;"></div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="toggleJourneyReview()">Rever Jornada</button>
+                <button class="btn btn-secondary" onclick="startGame()">Jogar Novamente</button>
+                <button class="btn btn-secondary" onclick="showMenu()">Voltar ao Menu</button>
+            </div>
         </div>
     </div>
 
-    <!-- MODAIS E GUIA -->
-    <div id="modal-board-question" class="modal">
-        <div class="modal-content" style="max-height: auto; height: auto; padding: 20px;">
-            <h3>Desafio do Tabuleiro</h3>
-            <div id="board-q-text" style="font-size: 1.2rem; margin: 15px 0;"></div>
-            <input type="number" id="board-input" placeholder="x = ?">
-            <div id="board-feedback" style="margin: 10px; font-weight: bold;"></div>
-            <button class="btn" onclick="checkBoardAnswer()">Responder</button>
-        </div>
-    </div>
-
+    <!-- MODAIS -->
+    <div id="modal-board-question" class="modal"><div class="modal-content" style="max-height: auto; height: auto; padding: 20px;"><h3>Desafio do Tabuleiro</h3><div id="board-q-text" style="font-size: 1.2rem; margin: 15px 0;"></div><input type="number" id="board-input" placeholder="x = ?"><div id="board-feedback" style="margin: 10px; font-weight: bold;"></div><button class="btn" onclick="checkBoardAnswer()">Responder</button></div></div>
+    
     <div id="modal-guide" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <button class="tab-btn active" onclick="switchTab('tab-def')">1. Definições</button>
-                <button class="tab-btn" onclick="switchTab('tab-solve')">2. Como Resolver</button>
-                <button class="tab-btn" onclick="switchTab('tab-act')">3. Atividades</button>
-                <button class="tab-btn" onclick="switchTab('tab-prob')">4. Problemas</button>
-                <button class="tab-btn" onclick="switchTab('tab-plan')">5. Plano de Aula</button>
-            </div>
-            
-            <div id="tab-def" class="modal-body">
-                <h2>O que é uma Equação?</h2>
-                <div class="definition-box"><strong>Definição:</strong> "Toda sentença aberta expressa por uma igualdade é uma equação."</div>
-                <h3>Membros e Termos</h3>
-                <div class="example-box" style="text-align: center;">$$ \underbrace{7x + 3}_{\text{1.º Membro}} = \underbrace{11x - 5}_{\text{2.º Membro}} $$</div>
-                <h3>Raiz de uma Equação</h3>
-                <p>É o valor da incógnita que transforma a equação numa sentença verdadeira.</p>
-                <h3>Princípio da Igualdade</h3>
-                <p>O Princípio da Balança: o que fazes num lado, tens de fazer no outro.</p>
-            </div>
-            <div id="tab-solve" class="modal-body hidden">
-                <h2>Resolução</h2>
-                <p>Exemplo Aditivo: $5x + 3 = 38 \Rightarrow 5x = 35$</p>
-                <p>Exemplo Multiplicativo: $5x = 35 \Rightarrow x = 7$</p>
-            </div>
-            <div id="tab-act" class="modal-body hidden">
-                <h2>Atividades</h2>
-                <div class="activity-item"><strong>1.</strong> $x + 5 = 8$ <button class="btn btn-small btn-secondary" onclick="toggleAns('ans1')">Solução</button><div id="ans1" class="hidden">$$x=3$$</div></div>
-                <div class="activity-item"><strong>2.</strong> $x - 7 = -7$ <button class="btn btn-small btn-secondary" onclick="toggleAns('ans2')">Solução</button><div id="ans2" class="hidden">$$x=0$$</div></div>
-            </div>
-            <div id="tab-prob" class="modal-body hidden">
-                <h2>Problemas</h2>
-                <div class="activity-item"><p>O dobro de um número somado com 5 é 91.</p><button class="btn btn-small btn-secondary" onclick="toggleAns('sol1')">Solução</button><div id="sol1" class="hidden">$$2x+5=91 \Rightarrow x=43$$</div></div>
-            </div>
-            <div id="tab-plan" class="modal-body hidden">
-                <h2>Plano de Aula (Infografia)</h2>
-                <p>Este guia visual ajuda o professor a integrar a aplicação na sala de aula. Clique na imagem para ampliar.</p>
-                <div style="text-align: center;">
-                    <img src="./infografia-plano.jpg" alt="Infografia do Plano de Aula" class="zoomable-img" onclick="toggleZoom(this)" style="max-width: 100%; height: auto; border: 2px solid #ddd; border-radius: 8px;">
-                </div>
-            </div>
-            <div style="padding: 15px; text-align: center; border-top: 1px solid #ddd;">
-                <button class="btn" style="margin: 0;" onclick="closeGuide()">Fechar Guia</button>
-            </div>
+            <div class="modal-header"><button class="tab-btn active" onclick="switchTab('tab-def')">1. Definições</button><button class="tab-btn" onclick="switchTab('tab-solve')">2. Resolver</button><button class="tab-btn" onclick="switchTab('tab-act')">3. Atividades</button><button class="tab-btn" onclick="switchTab('tab-prob')">4. Problemas</button><button class="tab-btn" onclick="switchTab('tab-plan')">5. Plano</button></div>
+            <div id="tab-def" class="modal-body"><h2>O que é uma Equação?</h2><div class="definition-box"><strong>Definição:</strong> "Toda sentença aberta expressa por uma igualdade é uma equação."</div><h3>Membros e Termos</h3><div class="example-box" style="text-align: center;">$$ \underbrace{7x + 3}_{\text{1.º Membro}} = \underbrace{11x - 5}_{\text{2.º Membro}} $$</div></div>
+            <div id="tab-solve" class="modal-body hidden"><h2>Resolução</h2><p>Exemplo Aditivo: $5x + 3 = 38 \Rightarrow 5x = 35$</p><p>Exemplo Multiplicativo: $5x = 35 \Rightarrow x = 7$</p></div>
+            <div id="tab-act" class="modal-body hidden"><h2>Atividades</h2><div class="activity-item"><strong>1.</strong> $x + 5 = 8$ <button class="btn btn-small btn-secondary" onclick="toggleAns('ans1')">Solução</button><div id="ans1" class="hidden">$$x=3$$</div></div></div>
+            <div id="tab-prob" class="modal-body hidden"><h2>Problemas</h2><div class="activity-item"><p>O dobro de um número somado com 5 é 91.</p><button class="btn btn-small btn-secondary" onclick="toggleAns('sol1')">Solução</button><div id="sol1" class="hidden">$$2x+5=91 \Rightarrow x=43$$</div></div></div>
+            <div id="tab-plan" class="modal-body hidden"><h2>Plano de Aula</h2><p>Clique na imagem.</p><div style="text-align: center;"><img src="./infografia-plano.jpg" alt="Infografia" class="zoomable-img" onclick="toggleZoom(this)" style="max-width: 100%; border-radius: 8px;"></div></div>
+            <div style="padding: 15px; text-align: center; border-top: 1px solid #ddd;"><button class="btn" style="margin: 0;" onclick="closeGuide()">Fechar Guia</button></div>
         </div>
     </div>
 
     <script>
-        // --- DADOS DOS FLASHCARDS (Extraídos do CSV) ---
-        const flashcardsData = [
-            { q: "Qual é a definição formal de uma equação do 1.º grau?", a: "Expressão matemática onde o maior expoente da incógnita é 1." },
-            { q: "Qual é a Forma Canónica de uma equação do 1.º grau?", a: "A forma canónica é $ax + b = 0$." },
-            { q: "Qual é a condição essencial para a existência da equação?", a: "O coeficiente $a$ deve ser diferente de zero ($a \\ne 0$)." },
-            { q: "O que representa a incógnita ($x$)?", a: "Representa o valor desconhecido a determinar." },
-            { q: "O que é o coeficiente angular ($a$)?", a: "Número real que multiplica a incógnita $x$." },
-            { q: "O que é o termo independente ($b$)?", a: "Termo constante da equação que não depende de $x$." },
-            { q: "O que é a Raiz ou Solução?", a: "Valor da incógnita que torna a igualdade verdadeira." },
-            { q: "O que diz o Princípio Aditivo?", a: "Podemos adicionar/subtrair o mesmo valor a ambos os membros mantendo a igualdade." },
-            { q: "O que é a regra da transposição?", a: "Um termo muda de membro trocando a sua operação pela inversa." },
-            { q: "No problema da Maria ($50x+300=1550$), o que é o $x$?", a: "O número de semanas necessárias para economizar." },
-            { q: "Mover um termo a somar para o outro lado...", a: "...ele passa a subtrair." },
-            { q: "Mover um termo a multiplicar para o outro lado...", a: "...ele passa a dividir." },
-            { q: "Qual o objetivo principal da resolução?", a: "Isolar a incógnita para encontrar o seu valor." },
-            { q: "Retas paralelas e distintas representam um sistema...", a: "Sistema Impossível (SI)." },
-            { q: "Retas coincidentes representam um sistema...", a: "Sistema Possível e Indeterminado (SPI)." }
+        // --- SAFE MATHJAX ---
+        function typeset() { if(window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise(); }
+
+        // --- DADOS ---
+        const quizData = [
+            { q: "Na função afim definida por $f(x)=ax+b$, qual é o significado geométrico do coeficiente angular '$a$'?", options: ["A inclinação ou declive da reta no plano cartesiano.", "O ponto em que a reta interseta o eixo y.", "O ponto em que a reta interseta o eixo x.", "Um valor constante que representa a parte fixa da função."], correct: 0, hint: "Pense em como este coeficiente afeta se a reta sobe ou desce da esquerda para a direita." },
+            { q: "Ao resolver a equação $5x-8=2x+13$ utilizando o princípio aditivo, qual é o passo inicial correto para agrupar os termos com a incógnita '$x$' no primeiro membro?", options: ["Adicionar $2x$ a ambos os membros.", "Dividir ambos os membros por $5$.", "Adicionar $8$ a apenas um membro.", "Subtrair $2x$ de ambos os membros."], correct: 3, hint: "Para mover um termo de um lado da igualdade para o outro, deve-se aplicar a sua operação inversa em ambos os lados." },
+            { q: "Se, após simplificar algebricamente uma equação, se chega à forma $0 \\cdot x = 8$, qual é a classificação do seu conjunto-solução?", options: ["Impossível, com o conjunto-solução vazio.", "Possível e indeterminado, com infinitas soluções.", "A solução é $x=8$.", "Possível e determinado, com uma solução única."], correct: 0, hint: "Analise se existe algum valor para 'x' que possa tornar a igualdade 0=8 verdadeira." },
+            { q: "O custo mensal de um serviço de internet é uma taxa fixa de 50,00 € mais 0,10 € por MB consumido. Qual função descreve o custo total $V(x)$?", options: ["$V(x)=50x+0,10$", "$V(x)=0,10x+50$", "$V(x)=50,10x$", "$V(x)=50-0,10x$"], correct: 1, hint: "Identifique qual valor é a 'parte fixa' e qual é a 'parte que varia'." },
+            { q: "O que representa a raiz, ou o zero, de uma função afim $f(x)=ax+b$?", options: ["O valor de $x$ onde o gráfico interseta o eixo y.", "O valor de $x$ onde o gráfico interseta o eixo x.", "O valor inicial da função.", "A taxa de crescimento da função."], correct: 1, hint: "A 'raiz' é o valor que resulta em f(x)=0." },
+            { q: "Qual é o primeiro passo recomendado para resolver $\\frac{x}{3} - 4 = \\frac{x}{2}$?", options: ["Calcular o MMC dos denominadores (3 e 2) e multiplicar todos os termos.", "Multiplicar cruzado os termos $2x$ e $2$, e $3$ e $x$.", "Isolar o termo com $x$ somando $4$.", "Subtrair $\\frac{x}{2}$ de ambos os membros."], correct: 0, hint: "Para simplificar equações com frações, o objetivo principal é eliminar os denominadores." },
+            { q: "A que matemático do séc. XVII se atribui a unificação da álgebra e geometria (sistema de coordenadas cartesianas)?", options: ["René Descartes", "Isaac Newton", "Carl Friedrich Gauss", "Euclides"], correct: 0, hint: "O nome do sistema de coordenadas mais comum é uma homenagem a este pensador." },
+            { q: "Como se classifica o comportamento da função $g(x)=5-2x$?", options: ["Crescente, pois aproxima-se de 5.", "Decrescente, porque o coeficiente de $x$ é negativo.", "Constante.", "Crescente, porque o termo independente é positivo."], correct: 1, hint: "O crescimento ou decrescimento depende exclusivamente do sinal do coeficiente angular." },
+            { q: "Na equação $3(x-2)+5=14$, qual o resultado correto após aplicar a propriedade distributiva?", options: ["$3x-2+5=14$", "$3x-6+5=14$", "$3x-2=9$", "$x-2+5=\\frac{14}{3}$"], correct: 1, hint: "O número fora do parêntese deve multiplicar todos os termos dentro dele." },
+            { q: "Qual das seguintes representa a forma canónica de uma equação do 1.º grau?", options: ["$A(x)=B(x)$", "$y=mx+b$", "$ax+b=0$", "$ax^2+bx+c=0$"], correct: 2, hint: "A forma canónica expressa a equação igualada a zero." }
         ];
 
-        // --- DADOS DO QUIZ V/F (Gerados anteriormente) ---
-        const vfData = [
-            { q: "A forma canónica de uma equação do 1.º grau é $ax + b = 0$.", correct: true, feedback: "Correto! Esta é a estrutura base onde $a \\ne 0$." },
-            { q: "Para ser uma equação do 1.º grau, o coeficiente $a$ pode ser zero.", correct: false, feedback: "Falso! Se $a=0$, a incógnita desaparece e deixa de ser do 1.º grau." },
-            { q: "O Princípio Aditivo diz que quem está a somar passa a dividir.", correct: false, feedback: "Falso! O inverso da soma é a subtração, não a divisão." },
-            { q: "A raiz de uma equação é o valor que torna a igualdade verdadeira.", correct: true, feedback: "Verdadeiro! É a definição exata de solução." },
-            { q: "Na equação da Maria, o $x$ representava o dinheiro total.", correct: false, feedback: "Falso! O $x$ representava o tempo (número de semanas)." },
-            { q: "Duas retas paralelas e distintas formam um Sistema Possível Indeterminado (SPI).", correct: false, feedback: "Falso! Retas paralelas nunca se tocam, logo é um Sistema Impossível (SI)." },
-            { q: "A solução de $x + 3 = 0$ é $x = 3$.", correct: false, feedback: "Falso! Passando o $+3$ para o outro lado, torna-se $-3$." },
-            { q: "O termo independente é aquele que não depende de $x$.", correct: true, feedback: "Verdadeiro! É o termo constante (representado por $b$)." },
-            { q: "Ao resolver $4x - 8 = 3x + 3$, obtemos $x = 11$.", correct: true, feedback: "Verdadeiro! $4x - 3x = 3 + 8 \\Rightarrow x = 11$." },
-            { q: "Traduzir linguagem verbal para algébrica é irrelevante.", correct: false, feedback: "Falso! É uma competência fundamental para resolver problemas reais." }
-        ];
+        const flashcardsData = [{q:"Definição de Equação do 1.º Grau",a:"Expressão com igualdade onde o maior expoente de x é 1."},{q:"Forma Canónica",a:"ax + b = 0"},{q:"Condição de Existência",a:"a ≠ 0"},{q:"Incógnita (x)",a:"Valor desconhecido a determinar."},{q:"Coeficiente Angular (a)",a:"Multiplica o x."},{q:"Termo Independente (b)",a:"Não depende de x."},{q:"Raiz",a:"Valor que torna a igualdade verdadeira."},{q:"Princípio Aditivo",a:"Adicionar/subtrair o mesmo valor a ambos os lados."},{q:"Regra da Transposição",a:"Mudar de membro inverte a operação."},{q:"Isolar a Incógnita",a:"Objetivo da resolução."},{q:"Sistema Impossível (SI)",a:"Retas paralelas distintas."},{q:"Sistema Indeterminado (SPI)",a:"Retas coincidentes."}];
+        const vfData = [{q:"Forma canónica é $ax+b=0$.",c:true,f:"Correto!"},{q:"Coeficiente $a$ pode ser zero.",c:false,f:"Falso! Se a=0 não há x."},{q:"Aditivo: somar passa a dividir.",c:false,f:"Falso! Somar passa a subtrair."},{q:"Raiz torna a igualdade verdadeira.",c:true,f:"Verdadeiro!"},{q:"A função $f(x)=x$ designa-se por função identidade.",c:true,f:"Verdadeiro! É a função linear mais simples."},{q:"Paralelas distintas = SPI.",c:false,f:"Falso! É SI."},{q:"Solução de $x+3=0$ é 3.",c:false,f:"Falso! É -3."},{q:"Termo independente não depende de x.",c:true,f:"Verdadeiro!"},{q:"$4x-8=3x+3 \\Rightarrow x=11$.",c:true,f:"Verdadeiro!"},{q:"Linguagem verbal é irrelevante.",c:false,f:"Falso! É crucial."}];
 
-        // --- NAVEGAÇÃO ENTRE ECRÃS ---
-        const allScreens = ['screen-menu', 'screen-games-menu', 'screen-study-menu', 'screen-game-board', 'screen-game-memory', 'screen-game-domino', 'screen-game-bingo', 'screen-game', 'screen-lab', 'screen-report', 'screen-flashcards', 'screen-vf', 'screen-vf-report'];
-        
-        function hideAllScreens() { allScreens.forEach(id => document.getElementById(id).classList.add('hidden')); }
-        function showMenu() { hideAllScreens(); document.getElementById('screen-menu').classList.remove('hidden'); }
-        function showGamesMenu() { hideAllScreens(); document.getElementById('screen-games-menu').classList.remove('hidden'); }
-        function showStudyMenu() { hideAllScreens(); document.getElementById('screen-study-menu').classList.remove('hidden'); }
-        function openGuide() { document.getElementById('modal-guide').style.display = 'flex'; MathJax.typesetPromise(); }
-        function closeGuide() { document.getElementById('modal-guide').style.display = 'none'; }
-        
-        function switchTab(id) {
-            ['tab-def', 'tab-solve', 'tab-act', 'tab-prob', 'tab-plan'].forEach(i => document.getElementById(i).classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.remove('hidden');
-            event.target.classList.add('active');
-        }
-        function toggleAns(id) { const el = document.getElementById(id); el.classList.toggle('hidden'); MathJax.typesetPromise([el]); }
-        function toggleZoom(img) { img.classList.toggle('zoomed'); }
-
-        // --- FLASHCARDS LOGIC ---
-        let currentFC = 0;
-        function startFlashcards() {
-            hideAllScreens();
-            document.getElementById('screen-flashcards').classList.remove('hidden');
-            currentFC = 0;
-            document.getElementById('fc-total').innerText = flashcardsData.length;
-            loadFlashcard();
-        }
-        function loadFlashcard() {
-            document.getElementById('fc-counter').innerText = currentFC + 1;
-            document.querySelector('.flashcard-container').classList.remove('flipped');
-            // Pequeno delay para mudar o texto depois de desvirar
-            setTimeout(() => {
-                const data = flashcardsData[currentFC];
-                document.getElementById('fc-front').innerText = data.q;
-                document.getElementById('fc-back').innerHTML = data.a;
-                MathJax.typesetPromise(['fc-back', 'fc-front']);
-            }, 200);
-        }
-        function flipFlashcard() { document.querySelector('.flashcard-container').classList.toggle('flipped'); }
-        function nextFlashcard() { if (currentFC < flashcardsData.length - 1) { currentFC++; loadFlashcard(); } }
-        function prevFlashcard() { if (currentFC > 0) { currentFC--; loadFlashcard(); } }
-
-        // --- VERDADEIRO OU FALSO LOGIC ---
-        let currentVF = 0, vfScore = 0, vfAnswers = [];
-        function startVF() {
-            hideAllScreens();
-            document.getElementById('screen-vf').classList.remove('hidden');
-            currentVF = 0; vfScore = 0; vfAnswers = [];
-            loadVF();
-        }
-        function loadVF() {
-            const data = vfData[currentVF];
-            document.getElementById('vf-q-num').innerText = currentVF + 1;
-            document.getElementById('vf-progress').style.width = `${((currentVF)/vfData.length)*100}%`;
-            
-            const qEl = document.getElementById('vf-question');
-            qEl.innerHTML = data.q;
-            MathJax.typesetPromise([qEl]);
-
-            document.getElementById('vf-buttons').classList.remove('hidden');
-            document.getElementById('vf-feedback').style.display = 'none';
-            document.getElementById('vf-next-btn').classList.add('hidden');
-        }
-        function checkVF(userChoice) {
-            const data = vfData[currentVF];
-            const isCorrect = (userChoice === data.correct);
-            const feedbackEl = document.getElementById('vf-feedback');
-            
-            document.getElementById('vf-buttons').classList.add('hidden');
-            
-            if (isCorrect) {
-                vfScore++;
-                feedbackEl.innerHTML = `<strong>Correto! 🎉</strong><br>${data.feedback}`;
-                feedbackEl.className = 'feedback correct';
-            } else {
-                feedbackEl.innerHTML = `<strong>Incorreto...</strong><br>${data.feedback}`;
-                feedbackEl.className = 'feedback incorrect';
-            }
-            feedbackEl.style.display = 'block';
-            vfAnswers.push({ q: data.q, correct: isCorrect, feedback: data.feedback });
-            
-            document.getElementById('vf-next-btn').classList.remove('hidden');
-            MathJax.typesetPromise([feedbackEl]);
-        }
-        function nextVF() {
-            currentVF++;
-            if (currentVF < vfData.length) {
-                loadVF();
-            } else {
-                endVF();
-            }
-        }
-        function endVF() {
-            hideAllScreens();
-            document.getElementById('screen-vf-report').classList.remove('hidden');
-            document.getElementById('vf-final-score').innerText = `${vfScore} / ${vfData.length}`;
-            
-            let html = "";
-            vfAnswers.forEach((item, idx) => {
-                const icon = item.correct ? "✅" : "❌";
-                const color = item.correct ? "#27ae60" : "#c0392b";
-                html += `<div style="border-bottom: 1px solid #eee; padding: 10px 0;">
-                            <strong style="color:${color}">${icon} Questão ${idx+1}</strong><br>
-                            ${item.q}<br>
-                            <em style="font-size:0.9rem; color:#666;">${item.feedback}</em>
-                         </div>`;
-            });
-            const list = document.getElementById('vf-review-list');
-            list.innerHTML = html;
-            MathJax.typesetPromise([list]);
-        }
-
-        // --- LÓGICA EXISTENTE DA JORNADA ---
         const questions = [
             { id: 1, phase: "Visual", text: "Equilibra a balança:", type: "balance", left: { boxes: 1, units: 2 }, right: { boxes: 0, units: 5 }, equation: "$$x + 2 = 5$$", answer: 3, hint: "Retira 2 de cada lado.", explanation: "x = 3" },
             { id: 2, phase: "Visual", text: "Equilibra a balança:", type: "balance", left: { boxes: 1, units: 4 }, right: { boxes: 0, units: 10 }, equation: "$$x + 4 = 10$$", answer: 6, hint: "Retira 4 de cada lado.", explanation: "x = 6" },
@@ -582,222 +425,282 @@
             { id: 8, phase: "Mestre", text: "Frações:", type: "text", visual: "🏆 Fração", visualHint: "Tira 1, depois multiplica.", equation: "$$\\frac{x}{2} + 1 = 5$$", answer: 8, hint: "x/2 = 4", explanation: "x = 8" }
         ];
 
+        // --- STATE ---
+        let currentFC = 0;
+        let currentQuizIdx = 0, quizScore = 0, quizAnswers = []; 
+        let activeQuizType = ""; 
+        let isQuestionAnswered = false;
+        let achievements = { jornada: false, vf: false, quiz: false };
+        let scores = { jornada: 0, vf: 0, quiz: 0 };
         let currentQuestionIndex = 0, score = 0, lives = 3, userAnswers = [];
         let labState = { xValue: 5, left: { x: 1, u: 0 }, right: { x: 0, u: 5 } };
 
-        function startGame() {
-            currentQuestionIndex = 0; score = 0; lives = 3; userAnswers = [];
-            hideAllScreens(); document.getElementById('screen-game').classList.remove('hidden');
-            updateStats(); loadQuestion();
+        // --- NAVIGATION ---
+        const allScreens = ['screen-menu', 'screen-games-menu', 'screen-study-menu', 'screen-game-board', 'screen-game-memory', 'screen-game-domino', 'screen-game-bingo', 'screen-game', 'screen-lab', 'screen-report', 'screen-flashcards', 'screen-vf', 'screen-quiz', 'screen-results-report', 'screen-certificate'];
+        function hideAllScreens() { allScreens.forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); }); }
+        function showMenu() { 
+            hideAllScreens(); 
+            document.getElementById('screen-menu').classList.remove('hidden'); 
+            checkCertificateUnlock();
         }
-        function loadQuestion() {
-            const q = questions[currentQuestionIndex];
-            document.getElementById('level-indicator').innerText = `Nível ${currentQuestionIndex + 1}`;
-            document.getElementById('progress-bar').style.width = `${((currentQuestionIndex)/questions.length)*100}%`;
-            document.getElementById('feedback-area').style.display = 'none';
-            document.getElementById('btn-check').classList.remove('hidden');
-            document.getElementById('btn-next').classList.add('hidden');
-            document.getElementById('user-input').value = '';
-            
-            const h = document.getElementById('visual-hint-container'); h.innerHTML = ''; h.classList.add('hidden');
-            const btnH = document.getElementById('btn-visual-hint');
-            q.visualHint ? (btnH.classList.remove('hidden'), h.innerHTML = q.visualHint) : btnH.classList.add('hidden');
+        function showGamesMenu() { hideAllScreens(); document.getElementById('screen-games-menu').classList.remove('hidden'); }
+        function showStudyMenu() { hideAllScreens(); document.getElementById('screen-study-menu').classList.remove('hidden'); }
+        function openGuide() { document.getElementById('modal-guide').style.display = 'flex'; typeset(); }
+        function closeGuide() { document.getElementById('modal-guide').style.display = 'none'; }
+        function switchTab(id) { ['tab-def', 'tab-solve', 'tab-act', 'tab-prob', 'tab-plan'].forEach(i => document.getElementById(i).classList.add('hidden')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.remove('hidden'); event.target.classList.add('active'); }
+        function toggleAns(id) { const el = document.getElementById(id); el.classList.toggle('hidden'); typeset(); }
+        function toggleZoom(img) { img.classList.toggle('zoomed'); }
 
-            document.getElementById('question-text').innerText = q.text;
-            document.getElementById('question-equation').innerText = q.equation;
+        // --- FLASHCARDS ---
+        function startFlashcards() { hideAllScreens(); document.getElementById('screen-flashcards').classList.remove('hidden'); currentFC = 0; document.getElementById('fc-total').innerText = flashcardsData.length; loadFlashcard(); }
+        function loadFlashcard() { document.getElementById('fc-counter').innerText = currentFC + 1; document.querySelector('.flashcard-container').classList.remove('flipped'); setTimeout(() => { document.getElementById('fc-front').innerText = flashcardsData[currentFC].q; document.getElementById('fc-back').innerHTML = flashcardsData[currentFC].a; typeset(); }, 200); }
+        function flipFlashcard() { document.querySelector('.flashcard-container').classList.toggle('flipped'); }
+        function nextFlashcard() { if (currentFC < flashcardsData.length - 1) { currentFC++; loadFlashcard(); } }
+        function prevFlashcard() { if (currentFC > 0) { currentFC--; loadFlashcard(); } }
 
-            const ba = document.getElementById('balance-area');
-            const va = document.getElementById('visual-text-area');
-            if(q.type === 'balance') { va.classList.add('hidden'); renderBalance(q.left, q.right, 'balance-area'); }
-            else { ba.classList.add('hidden'); va.classList.remove('hidden'); va.innerHTML = q.visual; }
-            MathJax.typesetPromise();
+        // --- QUIZ (VF & GENERAL) ---
+        function startVF() { activeQuizType = 'VF'; initQuiz(); }
+        function startQuiz() { activeQuizType = 'GENERAL'; initQuiz(); }
+        function restartCurrentQuiz() { if(activeQuizType === 'VF') startVF(); else startQuiz(); }
+        function initQuiz() { hideAllScreens(); currentQuizIdx = 0; quizScore = 0; quizAnswers = []; document.getElementById(activeQuizType === 'VF' ? 'screen-vf' : 'screen-quiz').classList.remove('hidden'); loadQuizQuestion(); }
+        
+        function loadQuizQuestion() {
+            const isVF = activeQuizType === 'VF';
+            const dataSet = isVF ? vfData : quizData;
+            const item = dataSet[currentQuizIdx];
+            isQuestionAnswered = false;
+            const prefix = isVF ? 'vf' : 'quiz';
+            document.getElementById(`${prefix}-q-num`).innerText = currentQuizIdx + 1;
+            document.getElementById(`${prefix}-progress`).style.width = `${(currentQuizIdx / dataSet.length) * 100}%`;
+            document.getElementById(`${prefix}-question`).innerHTML = item.q;
+            typeset();
+            if (!isVF) document.getElementById('quiz-hint-text').innerText = item.hint || "";
+            document.getElementById(`${prefix}-feedback`).style.display = 'none';
+            document.getElementById(`${prefix}-next-btn`).classList.remove('hidden');
+            if (isVF) { document.getElementById('vf-buttons').classList.remove('hidden'); }
+            else {
+                const optsDiv = document.getElementById('quiz-options');
+                optsDiv.innerHTML = ''; optsDiv.style.pointerEvents = 'auto';
+                item.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button'); btn.className = 'btn btn-option'; btn.innerHTML = opt;
+                    btn.onclick = () => checkQuizAnswer(idx); optsDiv.appendChild(btn);
+                });
+                typeset();
+            }
         }
-        function checkAnswer() {
-            const val = parseFloat(document.getElementById('user-input').value);
-            const q = questions[currentQuestionIndex];
-            const fb = document.getElementById('feedback-area');
-            if(isNaN(val)) { alert("Insere um número."); return; }
-            if(val === q.answer) {
-                score += 100 + (lives*10); fb.innerHTML = `<strong>Correto!</strong> ${q.explanation}`; fb.className = 'feedback correct';
-                userAnswers.push({id:q.id, correct:true}); document.getElementById('btn-check').classList.add('hidden'); document.getElementById('btn-next').classList.remove('hidden');
+
+        function checkVF(val) { checkQuizAnswer(val); }
+        function checkQuizAnswer(userVal) {
+            const isVF = activeQuizType === 'VF';
+            const dataSet = isVF ? vfData : quizData;
+            const item = dataSet[currentQuizIdx];
+            const prefix = isVF ? 'vf' : 'quiz';
+            let isCorrect = false, feedbackText = "";
+            isQuestionAnswered = true;
+
+            if (isVF) {
+                document.getElementById('vf-buttons').classList.add('hidden');
+                isCorrect = (userVal === item.c); feedbackText = item.f;
             } else {
-                lives--; fb.innerHTML = `<strong>Errado...</strong> Dica: ${q.hint}`; fb.className = 'feedback incorrect';
-                if(lives===0) { endGame(); return; }
+                isCorrect = (userVal === item.correct); feedbackText = isCorrect ? "Correto!" : "Incorreto.";
+                const opts = document.getElementById('quiz-options'); opts.style.pointerEvents = 'none';
+                const btns = opts.querySelectorAll('button');
+                btns[userVal].classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+                if (!isCorrect) btns[item.correct].classList.add('selected-correct');
             }
-            fb.style.display = 'block'; updateStats(); MathJax.typesetPromise([fb]);
-        }
-        function nextQuestion() { currentQuestionIndex++; if(currentQuestionIndex<questions.length) loadQuestion(); else endGame(); }
-        function updateStats() { document.getElementById('score').innerText = score; document.getElementById('lives').innerText = lives; }
-        function endGame() {
-            hideAllScreens(); document.getElementById('screen-report').classList.remove('hidden');
-            document.getElementById('final-score').innerText = score;
-            let html = "<ul>";
-            questions.forEach((q,i) => { const a = userAnswers.find(x => x.id === q.id); html += `<li>Nível ${i+1}: ${a && a.correct ? '✅' : '❌'}</li>`; });
-            document.getElementById('report-details').innerHTML = html + "</ul>";
-        }
 
-        // --- LÓGICA DO LABORATÓRIO (COM CORREÇÃO DE INCLINAÇÃO) ---
-        function startLab() {
-            hideAllScreens(); document.getElementById('screen-lab').classList.remove('hidden');
-            renderBalance({boxes:0, units:0},{boxes:0, units:0}, 'lab-balance-area'); updateLab();
-        }
-        function adjustLab(s, t, d) { if(labState[s][t] + d >= 0) { labState[s][t] += d; updateLab(); } }
-        function updateLab() {
-            labState.xValue = parseInt(document.getElementById('lab-x-value').value);
-            document.getElementById('lab-x-display').innerText = labState.xValue;
-            ['left','right'].forEach(s => { document.getElementById(`count-${s}-x`).innerText = labState[s].x; document.getElementById(`count-${s}-u`).innerText = labState[s].u; });
-
-            renderBalance({boxes:labState.left.x, units:labState.left.u}, {boxes:labState.right.x, units:labState.right.u}, 'lab-balance-area');
+            if (isCorrect) quizScore++;
+            const fb = document.getElementById(`${prefix}-feedback`);
+            fb.innerHTML = `<strong>${isCorrect ? 'Correto! 🎉' : 'Incorreto...'}</strong><br>${feedbackText}`;
+            fb.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            fb.style.display = 'block';
             
-            const wL = (labState.left.x * labState.xValue) + labState.left.u;
-            const wR = (labState.right.x * labState.xValue) + labState.right.u;
-            const beam = document.getElementById('lab-balance-area-beam');
-            if(beam) {
-                beam.classList.remove('tilt-left', 'tilt-right', 'balanced');
-                beam.classList.add(wL > wR ? 'tilt-left' : (wR > wL ? 'tilt-right' : 'balanced'));
-            }
-            const term = (s) => { const x = labState[s].x > 0 ? (labState[s].x > 1 ? `${labState[s].x}x` : 'x') : ''; const u = labState[s].u > 0 ? (x ? `+${labState[s].u}` : `${labState[s].u}`) : ''; return (x+u) || '0'; };
-            const sym = wL > wR ? '>' : (wR > wL ? '<' : '=');
-            const col = wL === wR ? '#27ae60' : '#e74c3c';
-            const eq = `$$ ${term('left')} \\quad \\color{${col}}{${sym}} \\quad ${term('right')} $$`;
-            const el = document.getElementById('lab-equation'); el.innerHTML = eq; MathJax.typesetPromise([el]);
-        }
-
-        function renderBalance(l, r, id) {
-            const c = document.getElementById(id);
-            if(!c.querySelector('.balance-container')) {
-                c.innerHTML = `<div class="balance-container"><div class="balance-beam" id="${id}-beam"><div class="pan-string string-l1"></div><div class="pan-string string-l2"></div><div class="pan-plate plate-left" id="${id}-plate-left"></div><div class="pan-string string-r1"></div><div class="pan-string string-r2"></div><div class="pan-plate plate-right" id="${id}-plate-right"></div></div><div class="balance-fulcrum"></div></div>`;
-                c.classList.remove('hidden');
-            }
-            const pl = document.getElementById(`${id}-plate-left`); pl.innerHTML = '';
-            for(let i=0; i<l.boxes; i++) pl.innerHTML += `<div class="weight-box">x</div>`;
-            for(let i=0; i<l.units; i++) pl.innerHTML += `<div class="weight-circle">1</div>`;
-            const pr = document.getElementById(`${id}-plate-right`); pr.innerHTML = '';
-            for(let i=0; i<r.boxes; i++) pr.innerHTML += `<div class="weight-box">x</div>`;
-            for(let i=0; i<r.units; i++) pr.innerHTML += `<div class="weight-circle">1</div>`;
-        }
-
-        // --- LÓGICA DOS OUTROS JOGOS (Tabuleiro, Memória, Dominó, Bingo) ---
-        // TABULEIRO
-        let boardPos = 0, boardQ = null;
-        function startBoardGame() { hideAllScreens(); document.getElementById('screen-game-board').classList.remove('hidden'); boardPos = 0; renderBoard(); }
-        function renderBoard() {
-            const c = document.getElementById('board-container'); c.innerHTML = '';
-            for(let i=0; i<20; i++) {
-                const cell = document.createElement('div'); cell.className = 'board-cell';
-                if(i===0) { cell.innerText = 'Inicio'; cell.classList.add('start'); } else if(i===19) { cell.innerText = 'Fim'; cell.classList.add('finish'); } else { cell.innerText = i; }
-                if(i === boardPos) { const t = document.createElement('div'); t.className = 'player-token'; cell.appendChild(t); }
-                c.appendChild(cell);
-            }
-        }
-        function rollDice() {
-            const steps = Math.floor(Math.random() * 3) + 1; boardQ = questions[Math.floor(Math.random() * questions.length)];
-            document.getElementById('modal-board-question').style.display = 'flex';
-            document.getElementById('board-q-text').innerHTML = `Avança <strong>${steps}</strong> casas se resolveres:<br>${boardQ.equation}`;
-            document.getElementById('board-input').value = ''; document.getElementById('board-feedback').innerHTML = ''; document.getElementById('board-input').focus();
-            document.getElementById('modal-board-question').dataset.steps = steps; MathJax.typesetPromise();
-        }
-        function checkBoardAnswer() {
-            const val = parseFloat(document.getElementById('board-input').value);
-            const steps = parseInt(document.getElementById('modal-board-question').dataset.steps);
-            const fb = document.getElementById('board-feedback');
-            if(val === boardQ.answer) {
-                fb.innerHTML = "<span style='color:green'>Correto! A avançar...</span>";
-                setTimeout(() => { document.getElementById('modal-board-question').style.display = 'none'; boardPos += steps; if(boardPos>=19) { boardPos=19; renderBoard(); alert("Parabéns!"); } else { renderBoard(); } }, 1000);
-            } else { fb.innerHTML = "<span style='color:red'>Errado!</span>"; setTimeout(() => { document.getElementById('modal-board-question').style.display = 'none'; }, 1000); }
-        }
-
-        // MEMÓRIA
-        let memoryCards = [], flippedCards = [], memoryScore = 0;
-        const memoryPairs = [{id:1,eq:"$$x+2=5$$",sol:"$$x=3$$"},{id:2,eq:"$$2x=8$$",sol:"$$x=4$$"},{id:3,eq:"$$x-1=2$$",sol:"$$x=3$$"},{id:4,eq:"$$3x=9$$",sol:"$$x=3$$"},{id:5,eq:"$$x+5=10$$",sol:"$$x=5$$"},{id:6,eq:"$$2x+1=5$$",sol:"$$x=2$$"}];
-        function startMemoryGame() {
-            hideAllScreens(); document.getElementById('screen-game-memory').classList.remove('hidden'); document.getElementById('btn-restart-memory').classList.add('hidden');
-            memoryScore = 0; document.getElementById('memory-score').innerText = 0; flippedCards = [];
-            let deck = []; memoryPairs.forEach(p => { deck.push({id:p.id,c:p.eq}); deck.push({id:p.id,c:p.sol}); });
-            deck.sort(() => Math.random() - 0.5);
-            const g = document.getElementById('memory-container'); g.innerHTML = '';
-            deck.forEach((c, i) => {
-                const el = document.createElement('div'); el.className = 'memory-card'; el.dataset.id = c.id;
-                el.innerHTML = '<span style="display:none">' + c.c + '</span><span>❓</span>';
-                el.onclick = () => flipCard(el, c.c); g.appendChild(el);
+            quizAnswers.push({ 
+                q: item.q, userAns: isVF ? (userVal?"V":"F") : (activeQuizType==='VF'?'':item.options[userVal]), 
+                correctAns: isVF ? (item.c?"V":"F") : (activeQuizType==='VF'?'':item.options[item.correct]),
+                isCorrect: isCorrect, skipped: false 
             });
-            MathJax.typesetPromise();
+            typeset();
         }
-        function flipCard(el, content) {
-            if(el.classList.contains('flipped') || el.classList.contains('matched') || flippedCards.length >= 2) return;
-            el.classList.add('flipped'); el.innerHTML = '<div style="transform: rotateY(180deg); text-align: center;">' + content + '</div>'; MathJax.typesetPromise([el]);
-            flippedCards.push(el);
-            if(flippedCards.length === 2) {
-                if(flippedCards[0].dataset.id === flippedCards[1].dataset.id) {
-                    flippedCards.forEach(c => c.classList.add('matched')); memoryScore++; document.getElementById('memory-score').innerText = memoryScore; flippedCards = [];
-                    if(memoryScore === memoryPairs.length) document.getElementById('btn-restart-memory').classList.remove('hidden');
-                } else { setTimeout(() => { flippedCards.forEach(c => { c.classList.remove('flipped'); c.innerHTML = '<span>❓</span>'; }); flippedCards = []; }, 1000); }
+
+        function nextVF() { handleNextButton(); }
+        function nextQuiz() { handleNextButton(); }
+        function handleNextButton() {
+            if (!isQuestionAnswered) {
+                const isVF = activeQuizType === 'VF';
+                const dataSet = isVF ? vfData : quizData;
+                const item = dataSet[currentQuizIdx];
+                quizAnswers.push({ q: item.q, userAns: "Ignorada", correctAns: "", isCorrect: false, skipped: true });
+            }
+            const dataSet = activeQuizType === 'VF' ? vfData : quizData;
+            currentQuizIdx++;
+            if (currentQuizIdx < dataSet.length) loadQuizQuestion(); else endQuiz();
+        }
+
+        function endQuiz() {
+            hideAllScreens();
+            document.getElementById('screen-results-report').classList.remove('hidden');
+            const total = quizAnswers.length;
+            const correct = quizAnswers.filter(a => a.isCorrect).length;
+            const precision = total > 0 ? Math.round((correct / total) * 100) : 0;
+            document.getElementById('res-score').innerText = `${correct} / ${total}`;
+            document.getElementById('res-accuracy').innerText = `${precision}%`;
+            document.getElementById('res-correct').innerText = correct;
+            document.getElementById('res-wrong').innerText = total - correct - quizAnswers.filter(a=>a.skipped).length;
+            document.getElementById('res-skipped').innerText = quizAnswers.filter(a=>a.skipped).length;
+
+            let html = "";
+            quizAnswers.forEach((item, idx) => {
+                let icon = "❌", color = "#c0392b";
+                if (item.isCorrect) { icon = "✅"; color = "#27ae60"; }
+                if (item.skipped) { icon = "⏭️"; color = "#856404"; }
+                html += `<div class="review-item"><div class="review-q" style="color:${color}">${icon} Questão ${idx+1}</div><div style="font-size:0.9rem; margin-bottom:5px;">${item.q}</div><div class="review-status"><span style="color:#666">A tua resposta:</span> <strong>${item.userAns}</strong><br>${!item.isCorrect && !item.skipped ? `<span style="color:#27ae60">Correta: <strong>${item.correctAns}</strong></span>` : ''}</div></div>`;
+            });
+            document.getElementById('res-review-list').innerHTML = html;
+            document.getElementById('res-review-container').classList.add('hidden');
+            typeset();
+            if (activeQuizType === 'VF') { achievements.vf = true; scores.vf = precision; }
+            else { achievements.quiz = true; scores.quiz = precision; }
+        }
+        function toggleReview() { document.getElementById('res-review-container').classList.toggle('hidden'); }
+
+        // --- CERTIFICATE ---
+        function checkCertificateUnlock() {
+            if (achievements.jornada && achievements.vf && achievements.quiz) {
+                const btn = document.getElementById('btn-cert-main');
+                btn.classList.remove('btn-disabled'); btn.removeAttribute('disabled'); btn.innerText = "🏆 Certificado (Desbloqueado!)";
             }
         }
-
-        // DOMINÓ
-        let dominoHand = [], dominoTable = [];
-        const dominoData = [{l:"Início",r:"$$x+1=3$$"},{l:"$$x=2$$",r:"$$2x=8$$"},{l:"$$x=4$$",r:"$$x-1=5$$"},{l:"$$x=6$$",r:"$$3x=15$$"},{l:"$$x=5$$",r:"$$x+x=10$$"},{l:"$$x=5$$",r:"$$4x=4$$"},{l:"$$x=1$$",r:"Fim"}];
-        function startDominoGame() {
-            hideAllScreens(); document.getElementById('screen-game-domino').classList.remove('hidden'); document.getElementById('btn-restart-domino').classList.add('hidden'); document.getElementById('domino-msg').innerText = "";
-            dominoTable = []; dominoHand = [...dominoData];
-            dominoTable.push(dominoHand.shift()); dominoHand.sort(() => Math.random() - 0.5); renderDomino();
-        }
-        function renderDomino() {
-            const t = document.getElementById('domino-table'); t.innerHTML = '';
-            dominoTable.forEach(p => t.innerHTML += `<div class="domino-piece on-table"><div class="domino-half">${p.l}</div><div class="domino-half">${p.r}</div></div>`);
-            const h = document.getElementById('domino-hand'); h.innerHTML = '';
-            dominoHand.forEach((p, i) => {
-                const d = document.createElement('div'); d.className = 'domino-piece'; d.innerHTML = `<div class="domino-half">${p.l}</div><div class="domino-half">${p.r}</div>`;
-                d.onclick = () => playDomino(i); h.appendChild(d);
-            });
-            if(dominoHand.length === 0) { document.getElementById('domino-msg').innerText = "Parabéns!"; document.getElementById('btn-restart-domino').classList.remove('hidden'); }
-            MathJax.typesetPromise();
-        }
-        function playDomino(i) {
-            const p = dominoHand[i]; const last = dominoTable[dominoTable.length-1];
-            const sols = {"$$x+1=3$$":"$$x=2$$","$$2x=8$$":"$$x=4$$","$$x-1=5$$":"$$x=6$$","$$3x=15$$":"$$x=5$$","$$x+x=10$$":"$$x=5$$","$$4x=4$$":"$$x=1$$"};
-            if(p.l === sols[last.r]) { dominoHand.splice(i, 1); dominoTable.push(p); document.getElementById('domino-msg').innerText = "Boa jogada!"; renderDomino(); } 
-            else { document.getElementById('domino-msg').innerText = "Não encaixa!"; }
+        function showCertificate() {
+            hideAllScreens(); document.getElementById('screen-certificate').classList.remove('hidden');
+            const now = new Date(); document.getElementById('cert-date').innerText = "Data: " + now.toLocaleDateString();
+            document.getElementById('cert-score-jornada').innerText = scores.jornada;
+            document.getElementById('cert-score-vf').innerText = scores.vf;
+            document.getElementById('cert-score-quiz').innerText = scores.quiz;
+            
+            // Calculate Global Grade
+            const global = Math.round((scores.jornada + scores.vf + scores.quiz) / 3);
+            let grade = "";
+            if(global <= 49) grade = "Insuficiente";
+            else if(global <= 69) grade = "Suficiente";
+            else if(global <= 89) grade = "Bom";
+            else if(global <= 99) grade = "Muito Bom";
+            else grade = "Excelente";
+            
+            document.getElementById('cert-score-global').innerText = global;
+            document.getElementById('cert-grade').innerText = grade;
         }
 
-        // BINGO
-        let bingoNumbers = [], bingoCalled = [], bingoCurrentTarget = null, bingoCurrentExpl = "";
-        function startBingoGame() {
-            hideAllScreens(); document.getElementById('screen-game-bingo').classList.remove('hidden');
-            bingoNumbers = []; bingoCalled = []; document.getElementById('bingo-current-call').innerHTML = '...'; document.getElementById('bingo-status').innerText = ''; document.getElementById('btn-next-bingo').classList.remove('hidden');
-            const pool = Array.from({length:20}, (_,i)=>i+1).sort(()=>Math.random()-0.5); bingoNumbers = pool.slice(0,9); renderBingoCard();
+        // --- JORNADA ---
+        function startGame(){ currentQuestionIndex=0; score=0; lives=3; userAnswers=[]; hideAllScreens(); document.getElementById('screen-game').classList.remove('hidden'); updateStats(); loadQuestion(); }
+        function loadQuestion(){ 
+            const q=questions[currentQuestionIndex]; 
+            document.getElementById('level-indicator').innerText=`Nível ${currentQuestionIndex+1}`; 
+            document.getElementById('progress-bar').style.width=`${((currentQuestionIndex)/questions.length)*100}%`; 
+            document.getElementById('feedback-area').style.display='none'; 
+            document.getElementById('btn-check').classList.remove('hidden'); 
+            document.getElementById('btn-next').classList.add('hidden'); 
+            document.getElementById('user-input').value=''; 
+            const h=document.getElementById('visual-hint-container'); h.innerHTML=''; h.classList.add('hidden'); 
+            const btnH=document.getElementById('btn-visual-hint'); 
+            q.visualHint?(btnH.classList.remove('hidden'),h.innerHTML=q.visualHint):btnH.classList.add('hidden'); 
+            document.getElementById('question-text').innerText=q.text; 
+            document.getElementById('question-equation').innerText=q.equation; 
+            const ba=document.getElementById('balance-area'); const va=document.getElementById('visual-text-area'); 
+            if(q.type==='balance'){va.classList.add('hidden');renderBalance(q.left,q.right,'balance-area');}else{ba.classList.add('hidden');va.classList.remove('hidden');va.innerHTML=q.visual;} 
+            typeset(); 
         }
-        function renderBingoCard() {
-            const g = document.getElementById('bingo-card'); g.innerHTML = '';
-            bingoNumbers.forEach(n => {
-                const c = document.createElement('div'); c.className = 'bingo-cell'; c.innerText = n;
-                c.onclick = () => checkBingoClick(c, n); g.appendChild(c);
+        function showVisualHint(){ document.getElementById('btn-visual-hint').classList.add('hidden'); document.getElementById('visual-hint-container').classList.remove('hidden'); typeset(); }
+        function checkAnswer(){ 
+            const val=parseFloat(document.getElementById('user-input').value); 
+            const q=questions[currentQuestionIndex]; const fb=document.getElementById('feedback-area'); 
+            if(isNaN(val)){alert("Insere um número.");return;} 
+            if(val===q.answer){ score+=100+(lives*10); fb.innerHTML=`<strong>Correto!</strong> ${q.explanation}`; fb.className='feedback correct'; userAnswers.push({id:q.id,correct:true}); document.getElementById('btn-check').classList.add('hidden'); document.getElementById('btn-next').classList.remove('hidden'); }
+            else{ lives--; fb.innerHTML=`<strong>Errado...</strong> Dica: ${q.hint}`; fb.className='feedback incorrect'; if(lives===0){endGame();return;} } 
+            fb.style.display='block'; updateStats(); typeset(); 
+        }
+        function nextQuestion(){ currentQuestionIndex++; if(currentQuestionIndex<questions.length)loadQuestion(); else endGame(); }
+        function updateStats(){ document.getElementById('score').innerText=score; document.getElementById('lives').innerText=lives; }
+        function endGame(){ 
+            hideAllScreens(); 
+            document.getElementById('screen-report').classList.remove('hidden'); 
+            document.getElementById('final-score').innerText=score; 
+            
+            // Generate Review HTML for Journey
+            let html = "<ul>";
+            questions.forEach((q, i) => {
+                const a = userAnswers.find(x => x.id === q.id);
+                const icon = a && a.correct ? '✅' : '❌';
+                html += `<li style="padding: 5px; border-bottom: 1px solid #eee;">
+                    ${icon} <strong>Nível ${i + 1}</strong>: ${q.text} <br>
+                    <small>${q.equation}</small>
+                </li>`;
             });
+            html += "</ul>";
+            document.getElementById('report-details').innerHTML = html;
+            
+            // Hide review initially
+            document.getElementById('journey-review-container').classList.add('hidden');
+
+            // Update Achievements (Calculate Percentage)
+            const correctCount = userAnswers.filter(a => a.correct).length;
+            const pct = Math.round((correctCount / questions.length) * 100);
+            
+            achievements.jornada = true; 
+            scores.jornada = pct;
+            
+            // Force typeset to remove $$ symbols
+            setTimeout(() => typeset(), 100);
         }
-        function nextBingoCall() {
-            let pool = Array.from({length:20}, (_,i)=>i+1).filter(n => !bingoCalled.includes(n));
-            if(pool.length === 0) { document.getElementById('bingo-status').innerText = "Fim!"; document.getElementById('btn-next-bingo').classList.add('hidden'); return; }
-            const t = pool[Math.floor(Math.random()*pool.length)]; bingoCalled.push(t); bingoCurrentTarget = t;
-            const data = generateBingoEquation(t); bingoCurrentExpl = data.exp;
-            const d = document.getElementById('bingo-current-call'); d.innerHTML = data.text; MathJax.typesetPromise([d]);
-            document.getElementById('bingo-status').innerText = "Procura na cartela!";
+
+        function toggleJourneyReview() {
+            document.getElementById('journey-review-container').classList.toggle('hidden');
         }
-        function generateBingoEquation(r) {
-            const t = Math.floor(Math.random()*3);
-            if(t===0) { const a=Math.floor(Math.random()*10)+1; return {text:`$$x + ${a} = ${r+a}$$`, exp:`Para isolar x, subtrai ${a}: $$x = ${r+a} - ${a} = ${r}$$`}; }
-            else if(t===1) { const a=Math.floor(Math.random()*5)+1; return {text:`$$x - ${a} = ${r-a}$$`, exp:`Para isolar x, soma ${a}: $$x = ${r-a} + ${a} = ${r}$$`}; }
-            else { const a=Math.floor(Math.random()*4)+2; return {text:`$$${a}x = ${a*r}$$`, exp:`Divide por ${a}: $$x = \\frac{${a*r}}{${a}} = ${r}$$`}; }
+        
+        function startLab(){ hideAllScreens(); document.getElementById('screen-lab').classList.remove('hidden'); renderBalance({boxes:0,units:0},{boxes:0,units:0},'lab-balance-area'); updateLab(); }
+        function adjustLab(s,t,d){ if(labState[s][t]+d>=0){labState[s][t]+=d;updateLab();} }
+        function updateLab(){ 
+            labState.xValue=parseInt(document.getElementById('lab-x-value').value); document.getElementById('lab-x-display').innerText=labState.xValue; 
+            ['left','right'].forEach(s=>{document.getElementById(`count-${s}-x`).innerText=labState[s].x;document.getElementById(`count-${s}-u`).innerText=labState[s].u;}); 
+            renderBalance({boxes:labState.left.x,units:labState.left.u},{boxes:labState.right.x,units:labState.right.u},'lab-balance-area'); 
+            const wL=(labState.left.x*labState.xValue)+labState.left.u; const wR=(labState.right.x*labState.xValue)+labState.right.u; 
+            const beam=document.getElementById('lab-balance-area-beam'); if(beam){ beam.classList.remove('tilt-left','tilt-right','balanced'); beam.classList.add(wL>wR?'tilt-left':(wR>wL?'tilt-right':'balanced')); } 
+            const term=(s)=>{const x=labState[s].x>0?(labState[s].x>1?`${labState[s].x}x`:'x'):'';const u=labState[s].u>0?(x?`+${labState[s].u}`:`${labState[s].u}`):'';return(x+u)||'0';}; 
+            const sym=wL>wR?'>':(wR>wL?'<':'='); const col=wL===wR?'#27ae60':'#e74c3c'; 
+            const eq=`$$ ${term('left')} \\quad \\color{${col}}{${sym}} \\quad ${term('right')} $$`; 
+            const el=document.getElementById('lab-equation'); el.innerHTML=eq; typeset(); 
         }
-        function checkBingoClick(c, n) {
-            if(n === bingoCurrentTarget) {
-                if(!c.classList.contains('marked')) {
-                    c.classList.add('marked'); const s = document.getElementById('bingo-status');
-                    s.innerHTML = "<span style='color:green; font-size: 1.1rem;'>Correto! ✅</span><br>" + bingoCurrentExpl; MathJax.typesetPromise([s]);
-                    if(document.querySelectorAll('.bingo-cell.marked').length === 9) alert("BINGO!");
-                }
-            } else { document.getElementById('bingo-status').innerHTML = "<span style='color:red'>Errado!</span>"; }
+        function renderBalance(l,r,id){ 
+            const c=document.getElementById(id); 
+            if(!c.querySelector('.balance-container')){c.innerHTML=`<div class="balance-container"><div class="balance-beam" id="${id}-beam"><div class="pan-string string-l1"></div><div class="pan-string string-l2"></div><div class="pan-plate plate-left" id="${id}-plate-left"></div><div class="pan-string string-r1"></div><div class="pan-string string-r2"></div><div class="pan-plate plate-right" id="${id}-plate-right"></div></div><div class="balance-fulcrum"></div></div>`;c.classList.remove('hidden');} 
+            const pl=document.getElementById(`${id}-plate-left`); pl.innerHTML=''; for(let i=0;i<l.boxes;i++)pl.innerHTML+=`<div class="weight-box">x</div>`; for(let i=0;i<l.units;i++)pl.innerHTML+=`<div class="weight-circle">1</div>`; 
+            const pr=document.getElementById(`${id}-plate-right`); pr.innerHTML=''; for(let i=0;i<r.boxes;i++)pr.innerHTML+=`<div class="weight-box">x</div>`; for(let i=0;i<r.units;i++)pr.innerHTML+=`<div class="weight-circle">1</div>`; 
         }
+
+        // --- MINI GAMES ---
+        let boardPos=0,boardQ=null;
+        function startBoardGame(){ hideAllScreens(); document.getElementById('screen-game-board').classList.remove('hidden'); boardPos=0; renderBoard(); }
+        function renderBoard(){ const c=document.getElementById('board-container'); c.innerHTML=''; for(let i=0;i<20;i++){ const cell=document.createElement('div'); cell.className='board-cell'; if(i===0){cell.innerText='Inicio';cell.classList.add('start');}else if(i===19){cell.innerText='Fim';cell.classList.add('finish');}else{cell.innerText=i;} if(i===boardPos){const t=document.createElement('div');t.className='player-token';cell.appendChild(t);} c.appendChild(cell); } }
+        function rollDice(){ const steps=Math.floor(Math.random()*3)+1; boardQ=questions[Math.floor(Math.random()*questions.length)]; document.getElementById('modal-board-question').style.display='flex'; document.getElementById('board-q-text').innerHTML=`Avança <strong>${steps}</strong> casas se resolveres:<br>${boardQ.equation}`; document.getElementById('board-input').value=''; document.getElementById('board-feedback').innerHTML=''; document.getElementById('board-input').focus(); document.getElementById('modal-board-question').dataset.steps=steps; typeset(); }
+        function checkBoardAnswer(){ const val=parseFloat(document.getElementById('board-input').value); const steps=parseInt(document.getElementById('modal-board-question').dataset.steps); const fb=document.getElementById('board-feedback'); if(val===boardQ.answer){ fb.innerHTML="<span style='color:green'>Correto! A avançar...</span>"; setTimeout(()=>{document.getElementById('modal-board-question').style.display='none';boardPos+=steps;if(boardPos>=19){boardPos=19;renderBoard();alert("Parabéns!");}else{renderBoard();}},1000); }else{ fb.innerHTML="<span style='color:red'>Errado!</span>"; setTimeout(()=>{document.getElementById('modal-board-question').style.display='none';},1000); } }
+
+        let memoryCards=[],flippedCards=[],memoryScore=0;
+        const memoryPairs=[{id:1,eq:"$$x+2=5$$",sol:"$$x=3$$"},{id:2,eq:"$$2x=8$$",sol:"$$x=4$$"},{id:3,eq:"$$x-1=2$$",sol:"$$x=3$$"},{id:4,eq:"$$3x=9$$",sol:"$$x=3$$"},{id:5,eq:"$$x+5=10$$",sol:"$$x=5$$"},{id:6,eq:"$$2x+1=5$$",sol:"$$x=2$$"}];
+        function startMemoryGame(){ hideAllScreens(); document.getElementById('screen-game-memory').classList.remove('hidden'); document.getElementById('btn-restart-memory').classList.add('hidden'); memoryScore=0; document.getElementById('memory-score').innerText=0; flippedCards=[]; let deck=[]; memoryPairs.forEach(p=>{deck.push({id:p.id,c:p.eq});deck.push({id:p.id,c:p.sol});}); deck.sort(()=>Math.random()-0.5); const g=document.getElementById('memory-container'); g.innerHTML=''; deck.forEach((c,i)=>{ const el=document.createElement('div'); el.className='memory-card'; el.dataset.id=c.id; el.innerHTML='<span style="display:none">'+c.c+'</span><span>❓</span>'; el.onclick=()=>flipCard(el,c.c); g.appendChild(el); }); typeset(); }
+        function flipCard(el,content){ if(el.classList.contains('flipped')||el.classList.contains('matched')||flippedCards.length>=2)return; el.classList.add('flipped'); el.innerHTML='<div style="transform:rotateY(180deg);text-align:center;">'+content+'</div>'; typeset(); flippedCards.push(el); if(flippedCards.length===2){ if(flippedCards[0].dataset.id===flippedCards[1].dataset.id){ flippedCards.forEach(c=>c.classList.add('matched')); memoryScore++; document.getElementById('memory-score').innerText=memoryScore; flippedCards=[]; if(memoryScore===memoryPairs.length)document.getElementById('btn-restart-memory').classList.remove('hidden'); }else{ setTimeout(()=>{flippedCards.forEach(c=>{c.classList.remove('flipped');c.innerHTML='<span>❓</span>';});flippedCards=[];},1000); } } }
+
+        let dominoHand=[],dominoTable=[];
+        const dominoData=[{l:"Início",r:"$$x+1=3$$"},{l:"$$x=2$$",r:"$$2x=8$$"},{l:"$$x=4$$",r:"$$x-1=5$$"},{l:"$$x=6$$",r:"$$3x=15$$"},{l:"$$x=5$$",r:"$$x+x=10$$"},{l:"$$x=5$$",r:"$$4x=4$$"},{l:"$$x=1$$",r:"Fim"}];
+        function startDominoGame(){ hideAllScreens(); document.getElementById('screen-game-domino').classList.remove('hidden'); document.getElementById('btn-restart-domino').classList.add('hidden'); document.getElementById('domino-msg').innerText=""; dominoTable=[]; dominoHand=[...dominoData]; dominoTable.push(dominoHand.shift()); dominoHand.sort(()=>Math.random()-0.5); renderDomino(); }
+        function renderDomino(){ const t=document.getElementById('domino-table'); t.innerHTML=''; dominoTable.forEach(p=>t.innerHTML+=`<div class="domino-piece on-table"><div class="domino-half">${p.l}</div><div class="domino-half">${p.r}</div></div>`); const h=document.getElementById('domino-hand'); h.innerHTML=''; dominoHand.forEach((p,i)=>{ const d=document.createElement('div'); d.className='domino-piece'; d.innerHTML=`<div class="domino-half">${p.l}</div><div class="domino-half">${p.r}</div>`; d.onclick=()=>playDomino(i); h.appendChild(d); }); if(dominoHand.length===0){document.getElementById('domino-msg').innerText="Parabéns!";document.getElementById('btn-restart-domino').classList.remove('hidden');} typeset(); }
+        function playDomino(i){ const p=dominoHand[i]; const last=dominoTable[dominoTable.length-1]; const sols={"$$x+1=3$$":"$$x=2$$","$$2x=8$$":"$$x=4$$","$$x-1=5$$":"$$x=6$$","$$3x=15$$":"$$x=5$$","$$x+x=10$$":"$$x=5$$","$$4x=4$$":"$$x=1$$"}; if(p.l===sols[last.r]){dominoHand.splice(i,1);dominoTable.push(p);document.getElementById('domino-msg').innerText="Boa jogada!";renderDomino();}else{document.getElementById('domino-msg').innerText="Não encaixa!";} }
+
+        let bingoNumbers=[],bingoCalled=[],bingoCurrentTarget=null,bingoCurrentExpl="";
+        function startBingoGame(){ hideAllScreens(); document.getElementById('screen-game-bingo').classList.remove('hidden'); bingoNumbers=[]; bingoCalled=[]; document.getElementById('bingo-current-call').innerHTML='...'; document.getElementById('bingo-status').innerText=''; document.getElementById('btn-next-bingo').classList.remove('hidden'); const pool=Array.from({length:20},(_,i)=>i+1).sort(()=>Math.random()-0.5); bingoNumbers=pool.slice(0,9); renderBingoCard(); }
+        function renderBingoCard(){ const g=document.getElementById('bingo-card'); g.innerHTML=''; bingoNumbers.forEach(n=>{ const c=document.createElement('div'); c.className='bingo-cell'; c.innerText=n; c.onclick=()=>checkBingoClick(c,n); g.appendChild(c); }); }
+        function nextBingoCall(){ let pool=Array.from({length:20},(_,i)=>i+1).filter(n=>!bingoCalled.includes(n)); if(pool.length===0){document.getElementById('bingo-status').innerText="Fim!";document.getElementById('btn-next-bingo').classList.add('hidden');return;} const t=pool[Math.floor(Math.random()*pool.length)]; bingoCalled.push(t); bingoCurrentTarget=t; const data=generateBingoEquation(t); bingoCurrentExpl=data.exp; const d=document.getElementById('bingo-current-call'); d.innerHTML=data.text; typeset(); document.getElementById('bingo-status').innerText="Procura na cartela!"; }
+        function generateBingoEquation(r){ const t=Math.floor(Math.random()*3); if(t===0){const a=Math.floor(Math.random()*10)+1;return{text:`$$x + ${a} = ${r+a}$$`,exp:`Para isolar x, subtrai ${a}: $$x = ${r+a} - ${a} = ${r}$$`};}else if(t===1){const a=Math.floor(Math.random()*5)+1;return{text:`$$x - ${a} = ${r-a}$$`,exp:`Para isolar x, soma ${a}: $$x = ${r-a} + ${a} = ${r}$$`};}else{const a=Math.floor(Math.random()*4)+2;return{text:`$$${a}x = ${a*r}$$`,exp:`Divide por ${a}: $$x = \\frac{${a*r}}{${a}} = ${r}$$`};} }
+        function checkBingoClick(c,n){ if(n===bingoCurrentTarget){ if(!c.classList.contains('marked')){ c.classList.add('marked'); const s=document.getElementById('bingo-status'); s.innerHTML="<span style='color:green;font-size:1.1rem;'>Correto! ✅</span><br>"+bingoCurrentExpl; typeset(); if(document.querySelectorAll('.bingo-cell.marked').length===9)alert("BINGO!"); } }else{ document.getElementById('bingo-status').innerHTML="<span style='color:red'>Errado!</span>"; } }
     </script>
 </body>
 </html>
