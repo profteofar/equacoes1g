@@ -240,7 +240,7 @@
             </div>
             <div style="margin-top: 20px;">
                 <button class="btn btn-secondary" onclick="prevFlashcard()">⬅ Anterior</button>
-                <button class="btn" onclick="nextFlashcard()">Próximo ➡</button>
+                <button id="fc-next-btn" class="btn" onclick="nextFlashcard()">Próximo ➡</button>
             </div>
         </div>
 
@@ -463,7 +463,7 @@
             { q: "Qual das seguintes representa a forma canónica de uma equação do 1.º grau?", options: ["$A(x)=B(x)$", "$y=mx+b$", "$ax+b=0$", "$ax^2+bx+c=0$"], correct: 2, hint: "A forma canónica expressa a equação igualada a zero." }
         ];
 
-        const flashcardsData = [{q:"Definição de Equação do 1.º Grau",a:"Expressão com igualdade onde o maior expoente de x é 1."},{q:"Forma Canónica",a:"ax + b = 0"},{q:"Condição de Existência",a:"a ≠ 0"},{q:"Incógnita (x)",a:"Valor desconhecido a determinar."},{q:"Coeficiente Angular (a)",a:"Multiplica o x."},{q:"Termo Independente (b)",a:"Não depende de x."},{q:"Raiz",a:"Valor que torna a igualdade verdadeira."},{q:"Princípio Aditivo",a:"Adicionar/subtrair o mesmo valor a ambos os lados."},{q:"Regra da Transposição",a:"Mudar de membro inverte a operação."},{q:"Isolar a Incógnita",a:"Objetivo da resolução."},{q:"Sistema Impossível (SI)",a:"Retas paralelas distintas."},{q:"Sistema Indeterminado (SPI)",a:"Retas coincidentes."}];
+        const flashcardsData = [{q:"Definição de Equação do 1.º Grau",a:"Expressão com igualdade onde o maior expoente de x é 1."},{q:"Forma Canónica",a:"ax + b = 0"},{q:"Condição de Existência",a:"a ≠ 0"},{q:"Incógnita (x)",a:"Valor desconhecido a determinar."},{q:"Coeficiente Angular (a)",a:"Multiplica o x."},{q:"Termo Independente (b)",a:"Não depende de x."},{q:"Raiz",a:"Valor que torna a igualdade verdadeira."},{q:"Princípio Aditivo",a:"Adicionar/subtrair o mesmo valor a ambos os lados."},{q:"Regra da Transposição",a:"Mudar de membro inverte a operação."},{q:"Isolar a Incógnita",a:"Objetivo da resolução."},{q:"Sistema Impossível (SI)",a:"Retas paralelas distintas."},{q:"Sistema Indeterminado (SPI)",a:"Retas coincidentes."},{q:"Definição de Equação",a:"Toda a sentença aberta expressa por uma igualdade."}];
         const vfData = [{q:"Forma canónica é $ax+b=0$.",c:true,f:"Correto!"},{q:"Coeficiente $a$ pode ser zero.",c:false,f:"Falso! Se a=0 não há x."},{q:"Aditivo: somar passa a dividir.",c:false,f:"Falso! Somar passa a subtrair."},{q:"Raiz torna a igualdade verdadeira.",c:true,f:"Verdadeiro!"},{q:"A função $f(x)=x$ designa-se por função identidade.",c:true,f:"Verdadeiro! É a função linear mais simples."},{q:"Paralelas distintas = SPI.",c:false,f:"Falso! É SI."},{q:"Solução de $x+3=0$ é 3.",c:false,f:"Falso! É -3."},{q:"Termo independente não depende de x.",c:true,f:"Verdadeiro!"},{q:"$4x-8=3x+3 \\Rightarrow x=11$.",c:true,f:"Verdadeiro!"},{q:"Linguagem verbal é irrelevante.",c:false,f:"Falso! É crucial."}];
 
         const questions = [
@@ -486,6 +486,8 @@
         let scores = { jornada: 0, vf: 0, quiz: 0 };
         let currentQuestionIndex = 0, score = 0, lives = 3, userAnswers = [];
         let labState = { xValue: 5, left: { x: 1, u: 0 }, right: { x: 0, u: 5 } };
+        // Board Game Question Bag
+        let availableBoardQuestions = [];
 
         // --- NAVIGATION ---
         const allScreens = ['screen-menu', 'screen-games-menu', 'screen-study-menu', 'screen-game-board', 'screen-game-memory', 'screen-game-domino', 'screen-game-bingo', 'screen-game', 'screen-lab', 'screen-report', 'screen-flashcards', 'screen-vf', 'screen-quiz', 'screen-results-report', 'screen-certificate'];
@@ -505,7 +507,26 @@
 
         // --- FLASHCARDS ---
         function startFlashcards() { hideAllScreens(); document.getElementById('screen-flashcards').classList.remove('hidden'); currentFC = 0; document.getElementById('fc-total').innerText = flashcardsData.length; loadFlashcard(); }
-        function loadFlashcard() { document.getElementById('fc-counter').innerText = currentFC + 1; document.querySelector('.flashcard-container').classList.remove('flipped'); setTimeout(() => { document.getElementById('fc-front').innerText = flashcardsData[currentFC].q; document.getElementById('fc-back').innerHTML = flashcardsData[currentFC].a; typeset(); }, 200); }
+        function loadFlashcard() { 
+            document.getElementById('fc-counter').innerText = currentFC + 1; 
+            const container = document.querySelector('.flashcard-container');
+            container.classList.remove('flipped'); 
+            
+            const btnNext = document.getElementById('fc-next-btn');
+            if (currentFC >= flashcardsData.length - 1) {
+                btnNext.innerText = "🔄 Reiniciar";
+                btnNext.onclick = () => { currentFC = 0; loadFlashcard(); };
+            } else {
+                btnNext.innerText = "Próximo ➡";
+                btnNext.onclick = nextFlashcard;
+            }
+
+            setTimeout(() => { 
+                document.getElementById('fc-front').innerText = flashcardsData[currentFC].q; 
+                document.getElementById('fc-back').innerHTML = flashcardsData[currentFC].a; 
+                typeset(); 
+            }, 200); 
+        }
         function flipFlashcard() { document.querySelector('.flashcard-container').classList.toggle('flipped'); }
         function nextFlashcard() { if (currentFC < flashcardsData.length - 1) { currentFC++; loadFlashcard(); } }
         function prevFlashcard() { if (currentFC > 0) { currentFC--; loadFlashcard(); } }
@@ -731,13 +752,54 @@
 
         // --- MINI GAMES ---
         let boardPos=0,boardQ=null;
-        function startBoardGame(){ hideAllScreens(); document.getElementById('screen-game-board').classList.remove('hidden'); boardPos=0; renderBoard(); }
+        
+        // Board Game Deck Logic
+        function startBoardGame(){ 
+            hideAllScreens(); 
+            document.getElementById('screen-game-board').classList.remove('hidden'); 
+            boardPos=0; 
+            // Reset Deck
+            availableBoardQuestions = [...questions]; // Clone questions array
+            renderBoard(); 
+        }
+        
+        function getBoardQuestion() {
+            // Refill deck if empty
+            if (availableBoardQuestions.length === 0) {
+                availableBoardQuestions = [...questions];
+            }
+            // Pick random index
+            const randomIndex = Math.floor(Math.random() * availableBoardQuestions.length);
+            // Remove and return
+            return availableBoardQuestions.splice(randomIndex, 1)[0];
+        }
+
         function renderBoard(){ const c=document.getElementById('board-container'); c.innerHTML=''; for(let i=0;i<20;i++){ const cell=document.createElement('div'); cell.className='board-cell'; if(i===0){cell.innerText='Inicio';cell.classList.add('start');}else if(i===19){cell.innerText='Fim';cell.classList.add('finish');}else{cell.innerText=i;} if(i===boardPos){const t=document.createElement('div');t.className='player-token';cell.appendChild(t);} c.appendChild(cell); } }
-        function rollDice(){ const steps=Math.floor(Math.random()*3)+1; boardQ=questions[Math.floor(Math.random()*questions.length)]; document.getElementById('modal-board-question').style.display='flex'; document.getElementById('board-q-text').innerHTML=`Avança <strong>${steps}</strong> casas se resolveres:<br>${boardQ.equation}`; document.getElementById('board-input').value=''; document.getElementById('board-feedback').innerHTML=''; document.getElementById('board-input').focus(); document.getElementById('modal-board-question').dataset.steps=steps; typeset(); }
+        function rollDice(){ 
+            const steps=Math.floor(Math.random()*3)+1; 
+            // Use deck system instead of random pick
+            boardQ = getBoardQuestion();
+            
+            document.getElementById('modal-board-question').style.display='flex'; 
+            document.getElementById('board-q-text').innerHTML=`Avança <strong>${steps}</strong> casas se resolveres:<br>${boardQ.equation}`; 
+            document.getElementById('board-input').value=''; 
+            document.getElementById('board-feedback').innerHTML=''; 
+            document.getElementById('board-input').focus(); 
+            document.getElementById('modal-board-question').dataset.steps=steps; 
+            typeset(); 
+        }
         function checkBoardAnswer(){ const val=parseFloat(document.getElementById('board-input').value); const steps=parseInt(document.getElementById('modal-board-question').dataset.steps); const fb=document.getElementById('board-feedback'); if(val===boardQ.answer){ fb.innerHTML="<span style='color:green'>Correto! A avançar...</span>"; setTimeout(()=>{document.getElementById('modal-board-question').style.display='none';boardPos+=steps;if(boardPos>=19){boardPos=19;renderBoard();alert("Parabéns!");}else{renderBoard();}},1000); }else{ fb.innerHTML="<span style='color:red'>Errado!</span>"; setTimeout(()=>{document.getElementById('modal-board-question').style.display='none';},1000); } }
 
         let memoryCards=[],flippedCards=[],memoryScore=0;
-        const memoryPairs=[{id:1,eq:"$$x+2=5$$",sol:"$$x=3$$"},{id:2,eq:"$$2x=8$$",sol:"$$x=4$$"},{id:3,eq:"$$x-1=2$$",sol:"$$x=3$$"},{id:4,eq:"$$3x=9$$",sol:"$$x=3$$"},{id:5,eq:"$$x+5=10$$",sol:"$$x=5$$"},{id:6,eq:"$$2x+1=5$$",sol:"$$x=2$$"}];
+        // Pairs with DISTINCT solution values (1 to 6)
+        const memoryPairs = [
+            { id: 1, eq: "$$x+1=2$$", sol: "$$x=1$$" },
+            { id: 2, eq: "$$2x=4$$", sol: "$$x=2$$" },
+            { id: 3, eq: "$$x+2=5$$", sol: "$$x=3$$" },
+            { id: 4, eq: "$$2x=8$$", sol: "$$x=4$$" },
+            { id: 5, eq: "$$x-1=4$$", sol: "$$x=5$$" },
+            { id: 6, eq: "$$3x=18$$", sol: "$$x=6$$" }
+        ];
         function startMemoryGame(){ hideAllScreens(); document.getElementById('screen-game-memory').classList.remove('hidden'); document.getElementById('btn-restart-memory').classList.add('hidden'); memoryScore=0; document.getElementById('memory-score').innerText=0; flippedCards=[]; let deck=[]; memoryPairs.forEach(p=>{deck.push({id:p.id,c:p.eq});deck.push({id:p.id,c:p.sol});}); deck.sort(()=>Math.random()-0.5); const g=document.getElementById('memory-container'); g.innerHTML=''; deck.forEach((c,i)=>{ const el=document.createElement('div'); el.className='memory-card'; el.dataset.id=c.id; el.innerHTML='<span style="display:none">'+c.c+'</span><span>❓</span>'; el.onclick=()=>flipCard(el,c.c); g.appendChild(el); }); typeset(); }
         function flipCard(el,content){ if(el.classList.contains('flipped')||el.classList.contains('matched')||flippedCards.length>=2)return; el.classList.add('flipped'); el.innerHTML='<div style="transform:rotateY(180deg);text-align:center;">'+content+'</div>'; typeset(); flippedCards.push(el); if(flippedCards.length===2){ if(flippedCards[0].dataset.id===flippedCards[1].dataset.id){ flippedCards.forEach(c=>c.classList.add('matched')); memoryScore++; document.getElementById('memory-score').innerText=memoryScore; flippedCards=[]; if(memoryScore===memoryPairs.length)document.getElementById('btn-restart-memory').classList.remove('hidden'); }else{ setTimeout(()=>{flippedCards.forEach(c=>{c.classList.remove('flipped');c.innerHTML='<span>❓</span>';});flippedCards=[];},1000); } } }
 
