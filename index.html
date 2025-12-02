@@ -389,10 +389,57 @@
     <div id="modal-guide" class="modal">
         <div class="modal-content">
             <div class="modal-header"><button class="tab-btn active" onclick="switchTab('tab-def')">1. Definições</button><button class="tab-btn" onclick="switchTab('tab-solve')">2. Resolver</button><button class="tab-btn" onclick="switchTab('tab-act')">3. Atividades</button><button class="tab-btn" onclick="switchTab('tab-prob')">4. Problemas</button><button class="tab-btn" onclick="switchTab('tab-plan')">5. Plano</button></div>
-            <div id="tab-def" class="modal-body"><h2>O que é uma Equação?</h2><div class="definition-box"><strong>Definição:</strong> "Toda sentença aberta expressa por uma igualdade é uma equação."</div><h3>Membros e Termos</h3><div class="example-box" style="text-align: center;">$$ \underbrace{7x + 3}_{\text{1.º Membro}} = \underbrace{11x - 5}_{\text{2.º Membro}} $$</div></div>
-            <div id="tab-solve" class="modal-body hidden"><h2>Resolução</h2><p>Exemplo Aditivo: $5x + 3 = 38 \Rightarrow 5x = 35$</p><p>Exemplo Multiplicativo: $5x = 35 \Rightarrow x = 7$</p></div>
-            <div id="tab-act" class="modal-body hidden"><h2>Atividades</h2><div class="activity-item"><strong>1.</strong> $x + 5 = 8$ <button class="btn btn-small btn-secondary" onclick="toggleAns('ans1')">Solução</button><div id="ans1" class="hidden">$$x=3$$</div></div></div>
-            <div id="tab-prob" class="modal-body hidden"><h2>Problemas</h2><div class="activity-item"><p>O dobro de um número somado com 5 é 91.</p><button class="btn btn-small btn-secondary" onclick="toggleAns('sol1')">Solução</button><div id="sol1" class="hidden">$$2x+5=91 \Rightarrow x=43$$</div></div></div>
+            <div id="tab-def" class="modal-body">
+                <h2>O que é uma Equação?</h2>
+                <div class="definition-box"><strong>Definição:</strong> "Toda sentença aberta expressa por uma igualdade é uma equação."</div>
+                <h3>Dissecação de uma Equação</h3>
+                <div class="example-box" style="text-align: center;">
+                    $$ 7x + 3 = 0 $$
+                    <ul style="text-align: left; margin-top: 15px; list-style-type: none;">
+                        <li>🔴 <strong>7x</strong>: Termo Dependente (contém a incógnita)</li>
+                        <li>🔵 <strong>3</strong>: Termo Independente (número "sozinho")</li>
+                        <li>🟢 <strong>7</strong>: Coeficiente da incógnita (o que multiplica o x)</li>
+                    </ul>
+                </div>
+            </div>
+            <div id="tab-solve" class="modal-body hidden">
+                <h2>Exemplo Resolvido Passo a Passo</h2>
+                <p><strong>Equação:</strong> $5x + 3 = 38$</p>
+                <ol>
+                    <li><strong>Isolar o termo dependente:</strong> Subtrair 3 a ambos os membros.<br>$$5x + 3 - 3 = 38 - 3 \Rightarrow 5x = 35$$</li>
+                    <li><strong>Isolar a incógnita:</strong> Dividir ambos os membros por 5.<br>$$5x : 5 = 35 : 5 \Rightarrow x = 7$$</li>
+                    <li><strong>Solução:</strong> A raiz da equação é 7.</li>
+                </ol>
+            </div>
+            <div id="tab-act" class="modal-body hidden">
+                <h2>Atividades</h2>
+                <div class="activity-item">
+                    <strong>1.</strong> $x + 5 = 8$ 
+                    <button class="btn btn-small btn-secondary" onclick="toggleAns('ans1')">Ver Resolução</button>
+                    <div id="ans1" class="hidden">
+                        1. Subtrair 5 a ambos os lados: $$x = 8 - 5$$<br>2. Resultado: $$x = 3$$
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <strong>2.</strong> $x - 7 = -7$ 
+                    <button class="btn btn-small btn-secondary" onclick="toggleAns('ans2')">Ver Resolução</button>
+                    <div id="ans2" class="hidden">
+                        1. Somar 7 a ambos os lados: $$x = -7 + 7$$<br>2. Resultado: $$x = 0$$
+                    </div>
+                </div>
+            </div>
+            <div id="tab-prob" class="modal-body hidden">
+                <h2>Problemas</h2>
+                <div class="activity-item">
+                    <p>O dobro de um número somado com 5 é 91.</p>
+                    <button class="btn btn-small btn-secondary" onclick="toggleAns('sol1')">Ver Resolução</button>
+                    <div id="sol1" class="hidden">
+                        1. Tradução: $$2x + 5 = 91$$<br>
+                        2. Subtrair 5: $$2x = 91 - 5 \Rightarrow 2x = 86$$<br>
+                        3. Dividir por 2: $$x = 86 : 2 \Rightarrow x = 43$$
+                    </div>
+                </div>
+            </div>
             <div id="tab-plan" class="modal-body hidden"><h2>Plano de Aula</h2><p>Clique na imagem.</p><div style="text-align: center;"><img src="./infografia-plano.jpg" alt="Infografia" class="zoomable-img" onclick="toggleZoom(this)" style="max-width: 100%; border-radius: 8px;"></div></div>
             <div style="padding: 15px; text-align: center; border-top: 1px solid #ddd;"><button class="btn" style="margin: 0;" onclick="closeGuide()">Fechar Guia</button></div>
         </div>
