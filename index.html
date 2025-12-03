@@ -90,7 +90,6 @@
         .graph-controls input[type=range] { width: 100px; margin: 0 5px; }
 
         /* --- PREVIOUS STYLES --- */
-        /* (Mantidos para compatibilidade) */
         .flashcard-container { perspective: 1000px; width: 100%; max-width: 500px; height: 300px; margin: 20px auto; cursor: pointer; }
         .flashcard-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .flashcard-container.flipped .flashcard-inner { transform: rotateY(180deg); }
@@ -280,6 +279,7 @@
                 <button class="btn btn-game" onclick="simplifyTiles()">💥 Anular Pares Nulos</button>
                 <button class="btn btn-secondary" onclick="resetTiles()">Limpar Tudo</button>
             </div>
+            <div id="tiles-equation-display" style="font-size: 1.2rem; margin-top: 15px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd;"></div>
             <p id="tiles-feedback" style="height: 20px; font-weight: bold; color: var(--primary);"></p>
         </div>
 
@@ -379,7 +379,7 @@
 
     <!-- MODAIS & GUIA -->
     <div id="modal-board-question" class="modal"><div class="modal-content" style="max-height: auto; height: auto; padding: 20px;"><h3>Desafio do Tabuleiro</h3><div id="board-q-text" style="font-size: 1.2rem; margin: 15px 0;"></div><input type="number" id="board-input" placeholder="x = ?"><div id="board-feedback" style="margin: 10px; font-weight: bold;"></div><button class="btn" onclick="checkBoardAnswer()">Responder</button></div></div>
-    <div id="modal-guide" class="modal"><div class="modal-content"><div class="modal-header"><button class="tab-btn active" onclick="switchTab('tab-def')">1. Definições</button><button class="tab-btn" onclick="switchTab('tab-solve')">2. Resolver</button><button class="tab-btn" onclick="switchTab('tab-act')">3. Atividades</button><button class="tab-btn" onclick="switchTab('tab-prob')">4. Problemas</button><button class="tab-btn" onclick="switchTab('tab-plan')">5. Plano</button></div><div id="tab-def" class="modal-body"><h2>O que é uma Equação?</h2><div class="definition-box"><strong>Definição:</strong> "Toda sentença aberta expressa por uma igualdade é uma equação."</div><h3>Dissecação de uma Equação</h3><div class="example-box" style="text-align: center;">$$ 7x + 3 = 0 $$<ul style="text-align: left; margin-top: 15px; list-style-type: none;"><li>🔴 <strong>7x</strong>: Termo Dependente (contém a incógnita)</li><li>🔵 <strong>3</strong>: Termo Independente (número "sozinho")</li><li>🟢 <strong>7</strong>: Coeficiente da incógnita (o que multiplica o x)</li></ul></div></div><div id="tab-solve" class="modal-body hidden"><h2>Exemplo Resolvido Passo a Passo</h2><p><strong>Equação:</strong> $5x + 3 = 38$</p><ol><li><strong>Isolar o termo dependente:</strong> Subtrair 3 a ambos os membros.<br>$$5x + 3 - 3 = 38 - 3 \Rightarrow 5x = 35$$</li><li><strong>Isolar a incógnita:</strong> Dividir ambos os membros por 5.<br>$$5x : 5 = 35 : 5 \Rightarrow x = 7$$</li><li><strong>Solução:</strong> A raiz da equação é 7.</li></ol></div><div id="tab-act" class="modal-body hidden"><h2>Atividades</h2><div class="activity-item"><strong>1.</strong> $x + 5 = 8$ <button class="btn btn-small btn-secondary" onclick="toggleAns('ans1')">Ver Resolução</button><div id="ans1" class="hidden">1. Subtrair 5 a ambos os lados: $$x = 8 - 5$$<br>2. Resultado: $$x = 3$$</div></div><div class="activity-item"><strong>2.</strong> $x - 7 = -7$ <button class="btn btn-small btn-secondary" onclick="toggleAns('ans2')">Ver Resolução</button><div id="ans2" class="hidden">1. Somar 7 a ambos os lados: $$x = -7 + 7$$<br>2. Resultado: $$x = 0$$</div></div></div><div id="tab-prob" class="modal-body hidden"><h2>Problemas</h2><div class="activity-item"><p>O dobro de um número somado com 5 é 91.</p><button class="btn btn-small btn-secondary" onclick="toggleAns('sol1')">Ver Resolução</button><div id="sol1" class="hidden">1. Tradução: $$2x + 5 = 91$$<br>2. Subtrair 5: $$2x = 91 - 5 \Rightarrow 2x = 86$$<br>3. Dividir por 2: $$x = 86 : 2 \Rightarrow x = 43$$</div></div></div><div id="tab-plan" class="modal-body hidden"><h2>Plano de Aula</h2><p>Clique na imagem.</p><div style="text-align: center;"><img src="./infografia-plano.jpg" alt="Infografia" class="zoomable-img" onclick="toggleZoom(this)" style="max-width: 100%; border-radius: 8px;"></div></div><div style="padding: 15px; text-align: center; border-top: 1px solid #ddd;"><button class="btn" style="margin: 0;" onclick="closeGuide()">Fechar Guia</button></div></div></div>
+    <div id="modal-guide" class="modal"><div class="modal-content"><div class="modal-header"><button class="tab-btn active" onclick="switchTab('tab-def')">1. Definições</button><button class="tab-btn" onclick="switchTab('tab-solve')">2. Resolver</button><button class="tab-btn" onclick="switchTab('tab-act')">3. Atividades</button><button class="tab-btn" onclick="switchTab('tab-prob')">4. Problemas</button><button class="tab-btn" onclick="switchTab('tab-plan')">5. Plano</button></div><div id="tab-def" class="modal-body"><h2>O que é uma Equação?</h2><div class="definition-box"><strong>Definição:</strong> "Equação é uma igualdade em que aparece uma letra (ou mais) que representa um valor desconhecido. À letra que representa o valor desconhecido chama-se incógnita."</div><h3>Dissecação de uma Equação</h3><div class="example-box" style="text-align: center;">$$ 7x + 3 = 0 $$<ul style="text-align: left; margin-top: 15px; list-style-type: none;"><li>🔴 <strong>7x</strong>: Termo Dependente (contém a incógnita)</li><li>🔵 <strong>3</strong>: Termo Independente (número "sozinho")</li><li>🟢 <strong>7</strong>: Coeficiente da incógnita (o que multiplica o x)</li></ul></div></div><div id="tab-solve" class="modal-body hidden"><h2>Exemplo Resolvido Passo a Passo</h2><p><strong>Equação:</strong> $5x + 3 = 38$</p><ol><li><strong>Isolar o termo dependente:</strong> Subtrair 3 a ambos os membros.<br>$$5x + 3 - 3 = 38 - 3 \Rightarrow 5x = 35$$</li><li><strong>Isolar a incógnita:</strong> Dividir ambos os membros por 5.<br>$$5x : 5 = 35 : 5 \Rightarrow x = 7$$</li><li><strong>Solução:</strong> A raiz da equação é 7.</li></ol></div><div id="tab-act" class="modal-body hidden"><h2>Atividades</h2><div class="activity-item"><strong>1.</strong> $x + 5 = 8$ <button class="btn btn-small btn-secondary" onclick="toggleAns('ans1')">Ver Resolução</button><div id="ans1" class="hidden">1. Subtrair 5 a ambos os lados: $$x = 8 - 5$$<br>2. Resultado: $$x = 3$$</div></div><div class="activity-item"><strong>2.</strong> $x - 7 = -7$ <button class="btn btn-small btn-secondary" onclick="toggleAns('ans2')">Ver Resolução</button><div id="ans2" class="hidden">1. Somar 7 a ambos os lados: $$x = -7 + 7$$<br>2. Resultado: $$x = 0$$</div></div></div><div id="tab-prob" class="modal-body hidden"><h2>Problemas</h2><div class="activity-item"><p>O dobro de um número somado com 5 é 91.</p><button class="btn btn-small btn-secondary" onclick="toggleAns('sol1')">Ver Resolução</button><div id="sol1" class="hidden">1. Tradução: $$2x + 5 = 91$$<br>2. Subtrair 5: $$2x = 91 - 5 \Rightarrow 2x = 86$$<br>3. Dividir por 2: $$x = 86 : 2 \Rightarrow x = 43$$</div></div></div><div id="tab-plan" class="modal-body hidden"><h2>Plano de Aula</h2><p>Clique na imagem.</p><div style="text-align: center;"><img src="./infografia-plano.jpg" alt="Infografia" class="zoomable-img" onclick="toggleZoom(this)" style="max-width: 100%; border-radius: 8px;"></div></div><div style="padding: 15px; text-align: center; border-top: 1px solid #ddd;"><button class="btn" style="margin: 0;" onclick="closeGuide()">Fechar Guia</button></div></div></div>
 
     <script>
         function typeset() { if(window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise(); }
@@ -425,7 +425,54 @@
                     container.appendChild(el);
                 });
             });
+            updateTilesEquation();
         }
+        
+        function updateTilesEquation() {
+            // Calculate algebraic representation
+            const getSideVal = (side) => {
+                let x = 0, u = 0;
+                tilesState[side].forEach(t => {
+                    if (t === 'x') x++;
+                    else if (t === '-x') x--;
+                    else if (t === '1') u++;
+                    else if (t === '-1') u--;
+                });
+                return { x, u };
+            };
+
+            const l = getSideVal('left');
+            const r = getSideVal('right');
+
+            const formatSide = (s) => {
+                let str = "";
+                if (s.x !== 0) str += (s.x === 1 ? "x" : (s.x === -1 ? "-x" : `${s.x}x`));
+                if (s.u !== 0) {
+                    if (s.u > 0 && str !== "") str += " + ";
+                    str += s.u;
+                }
+                if (str === "") str = "0";
+                return str;
+            };
+
+            const eqStr = `$$ ${formatSide(l)} = ${formatSide(r)} $$`;
+            document.getElementById('tiles-equation-display').innerHTML = "<strong>Representação Atual:</strong> " + eqStr;
+            typeset();
+
+            // Check for solution
+            // Scenario 1: x = k or k = x
+            if ((l.x === 1 && l.u === 0 && r.x === 0) || (r.x === 1 && r.u === 0 && l.x === 0)) {
+                document.getElementById('tiles-feedback').innerHTML = "🎉 Solução Encontrada!";
+            } else if ((l.x === -1 && l.u === 0 && r.x === 0) || (r.x === -1 && r.u === 0 && l.x === 0)) {
+                 document.getElementById('tiles-feedback').innerHTML = "Quase! Tens -x. Troca os sinais ou divide por -1.";
+            } else if (l.x !== 0 && l.u === 0 && r.x === 0 && r.u !== 0) {
+                // Scenario: ax = b
+                document.getElementById('tiles-feedback').innerHTML = `Tens ${l.x}x = ${r.u}. Divide ${r.u} por ${l.x} para achar x!`;
+            } else {
+                document.getElementById('tiles-feedback').innerHTML = "";
+            }
+        }
+
         function simplifyTiles() {
             // Logic: Remove pairs of (x, -x) and (1, -1) from EACH side separately
             let changed = false;
@@ -454,9 +501,12 @@
             
             renderTiles();
             const fb = document.getElementById('tiles-feedback');
-            if (changed) fb.innerText = "Pares nulos removidos! ✨";
-            else fb.innerText = "Não há pares nulos para remover.";
-            setTimeout(() => fb.innerText = "", 2000);
+            // If already showing solution text, keep it, otherwise show "Pairs removed"
+            if (!fb.innerText.includes("Solução") && !fb.innerText.includes("Tens")) {
+                 if (changed) fb.innerText = "Pares nulos removidos! ✨";
+                 else fb.innerText = "Não há pares nulos para remover (do mesmo lado).";
+                 setTimeout(() => { if(fb.innerText.includes("Pares")) fb.innerText = ""; }, 2000);
+            }
         }
 
         // --- GRAPH LAB ---
@@ -545,15 +595,20 @@
             ctx.stroke();
         }
 
-        // --- OTHER LOGIC RETAINED ---
-        // (Detective, Solver, Jornada, etc. - same as v10)
-        // Copied for completeness
-        const detectiveCases = [{steps:["$$3x+5=17$$","$$3x=17+5$$","$$3x=22$$","$$x=22/3$$"],errorIdx:1,explanation:"Erro de Sinal!"},{steps:["$$2x=10$$","$$x=10-2$$","$$x=8$$"],errorIdx:1,explanation:"Erro de Operação!"},{steps:["$$x-4=12$$","$$x=12-4$$","$$x=8$$"],errorIdx:1,explanation:"Erro de Sinal!"},{steps:["$$4x+2=2x+10$$","$$4x+2x=10-2$$","$$6x=8$$","$$x=8/6$$"],errorIdx:1,explanation:"Erro na Transposição!"},{steps:["$$5(x+2)=20$$","$$5x+2=20$$","$$5x=18$$","$$x=18/5$$"],errorIdx:1,explanation:"Erro na Distributiva!"}];
+        // --- UPDATED DETECTIVE LOGIC (VARIED STEPS) ---
+        const detectiveCases = [
+            {steps:["$$3x+5=17$$","$$3x=12$$","$$x=12-3$$","$$x=9$$"], errorIdx:2, explanation:"Erro de Operação! O 3 estava a multiplicar, deveria passar a dividir ($$x=12/3$$)."},
+            {steps:["$$x/2 = 6$$","$$x = 6-2$$","$$x = 4$$"], errorIdx:1, explanation:"Erro na Transposição! O 2 estava a dividir, deveria passar a multiplicar ($$x=6 \\times 2$$)."},
+            {steps:["$$-2x = 10$$","$$x = 10+2$$","$$x = 12$$"], errorIdx:1, explanation:"Erro de Operação! O -2 estava a multiplicar, deveria passar a dividir mantendo o sinal ($$x=10/-2$$)."},
+            {steps:["$$4x+2=2x+10$$","$$4x+2x=10-2$$","$$6x=8$$","$$x=8/6$$"], errorIdx:1, explanation:"Erro de Sinal! O termo $2x$ era positivo, ao mudar de membro devia ficar negativo ($$4x-2x$$)."},
+            {steps:["$$5(x+2)=20$$","$$5x+2=20$$","$$5x=18$$","$$x=18/5$$"], errorIdx:1, explanation:"Erro na Propriedade Distributiva! O 5 tem de multiplicar por ambos os termos ($$5x+10$$)."}
+        ];
+
         let currentDetectiveCase=0;
         function startDetective(){hideAllScreens();document.getElementById('screen-game-detective').classList.remove('hidden');currentDetectiveCase=0;loadDetectiveCase();}
         function loadDetectiveCase(){const d=detectiveCases[currentDetectiveCase];const c=document.getElementById('detective-case-container');c.innerHTML='';document.getElementById('detective-feedback').style.display='none';document.getElementById('detective-next-btn').classList.add('hidden');d.steps.forEach((s,i)=>{const e=document.createElement('div');e.className='detective-step';e.innerHTML=`<span class="step-number">${i+1}.</span> ${s}`;e.onclick=()=>checkDetectiveStep(e,i);c.appendChild(e);});typeset();}
         function checkDetectiveStep(el,i){const d=detectiveCases[currentDetectiveCase];const fb=document.getElementById('detective-feedback');document.querySelectorAll('.detective-step').forEach(e=>e.style.pointerEvents='none');if(i===d.errorIdx){el.classList.add('error-found');fb.innerHTML=`<strong>Bem observado!</strong><br>${d.explanation}`;fb.className='feedback correct';document.getElementById('detective-next-btn').classList.remove('hidden');}else{el.classList.add('error-missed');fb.innerHTML='<strong>Não foi aqui...</strong>';fb.className='feedback incorrect';setTimeout(()=>{document.querySelectorAll('.detective-step').forEach(e=>{e.style.pointerEvents='auto';e.classList.remove('error-missed');});},1500);}fb.style.display='block';}
-        function nextDetectiveCase(){currentDetectiveCase++;if(currentDetectiveCase<detectiveCases.length)loadDetectiveCase();else{alert("Parabéns!");showGamesMenu();}}
+        function nextDetectiveCase(){currentDetectiveCase++;if(currentDetectiveCase<detectiveCases.length)loadDetectiveCase();else{alert("Parabéns! Completaste todos os casos!");showGamesMenu();}}
 
         let solverState={a:0,b:0,c:0},solverOp='';
         function startSolver(){initSolver();hideAllScreens();document.getElementById('screen-lab-solver').classList.remove('hidden');}
@@ -564,7 +619,13 @@
 
         // --- DATA & STATE (QUIZ, JORNADA, ETC.) ---
         const quizData=[{q:"Na função afim definida por $f(x)=ax+b$, qual é o significado geométrico do coeficiente angular '$a$'?",options:["A inclinação ou declive da reta no plano cartesiano.","O ponto em que a reta interseta o eixo y.","O ponto em que a reta interseta o eixo x.","Um valor constante que representa a parte fixa da função."],correct:0,hint:"Pense em como este coeficiente afeta se a reta sobe ou desce da esquerda para a direita."},{q:"Ao resolver a equação $5x-8=2x+13$ utilizando o princípio aditivo, qual é o passo inicial correto para agrupar os termos com a incógnita '$x$' no primeiro membro?",options:["Adicionar $2x$ a ambos os membros.","Dividir ambos os membros por $5$.","Adicionar $8$ a apenas um membro.","Subtrair $2x$ de ambos os membros."],correct:3,hint:"Para mover um termo de um lado da igualdade para o outro, deve-se aplicar a sua operação inversa em ambos os lados."},{q:"Se, após simplificar algebricamente uma equação, se chega à forma $0 \\cdot x = 8$, qual é a classificação do seu conjunto-solução?",options:["Impossível, com o conjunto-solução vazio.","Possível e indeterminado, com infinitas soluções.","A solução é $x=8$.","Possível e determinado, com uma solução única."],correct:0,hint:"Analise se existe algum valor para 'x' que possa tornar a igualdade 0=8 verdadeira."},{q:"O custo mensal de um serviço de internet é uma taxa fixa de 50,00 € mais 0,10 € por MB consumido. Qual função descreve o custo total $V(x)$?",options:["$V(x)=50x+0,10$","$V(x)=0,10x+50$","$V(x)=50,10x$","$V(x)=50-0,10x$"],correct:1,hint:"Identifique qual valor é a 'parte fixa' e qual é a 'parte que varia'."},{q:"O que representa a raiz, ou o zero, de uma função afim $f(x)=ax+b$?",options:["O valor de $x$ onde o gráfico interseta o eixo y.","O valor de $x$ onde o gráfico interseta o eixo x.","O valor inicial da função.","A taxa de crescimento da função."],correct:1,hint:"A 'raiz' é o valor que resulta em f(x)=0."},{q:"Qual é o primeiro passo recomendado para resolver $\\frac{x}{3} - 4 = \\frac{x}{2}$?",options:["Calcular o MMC dos denominadores (3 e 2) e multiplicar todos os termos.","Multiplicar cruzado os termos $2x$ e $2$, e $3$ e $x$.","Isolar o termo com $x$ somando $4$.","Subtrair $\\frac{x}{2}$ de ambos os membros."],correct:0,hint:"Para simplificar equações com frações, o objetivo principal é eliminar os denominadores."},{q:"A que matemático do séc. XVII se atribui a unificação da álgebra e geometria (sistema de coordenadas cartesianas)?",options:["René Descartes","Isaac Newton","Carl Friedrich Gauss","Euclides"],correct:0,hint:"O nome do sistema de coordenadas mais comum é uma homenagem a este pensador."},{q:"Como se classifica o comportamento da função $g(x)=5-2x$?",options:["Crescente, pois aproxima-se de 5.","Decrescente, porque o coeficiente de $x$ é negativo.","Constante.","Crescente, porque o termo independente é positivo."],correct:1,hint:"O crescimento ou decrescimento depende exclusivamente do sinal do coeficiente angular."},{q:"Na equação $3(x-2)+5=14$, qual o resultado correto após aplicar a propriedade distributiva?",options:["$3x-2+5=14$","$3x-6+5=14$","$3x-2=9$","$x-2+5=\\frac{14}{3}$"],correct:1,hint:"O número fora do parêntese deve multiplicar todos os termos dentro dele."},{q:"Qual das seguintes representa a forma canónica de uma equação do 1.º grau?",options:["$A(x)=B(x)$","$y=mx+b$","$ax+b=0$","$ax^2+bx+c=0$"],correct:2,hint:"A forma canónica expressa a equação igualada a zero."}];
-        const flashcardsData = [{q:"Definição de Equação do 1.º Grau",a:"Expressão com igualdade onde o maior expoente de x é 1."},{q:"Forma Canónica",a:"ax + b = 0"},{q:"Condição de Existência",a:"a ≠ 0"},{q:"Incógnita (x)",a:"Valor desconhecido a determinar."},{q:"Coeficiente Angular (a)",a:"Multiplica o x."},{q:"Termo Independente (b)",a:"Não depende de x."},{q:"Raiz",a:"Valor que torna a igualdade verdadeira."},{q:"Princípio Aditivo",a:"Adicionar/subtrair o mesmo valor a ambos os lados."},{q:"Regra da Transposição",a:"Mudar de membro inverte a operação."},{q:"Isolar a Incógnita",a:"Objetivo da resolução."},{q:"Sistema Impossível (SI)",a:"Retas paralelas distintas."},{q:"Sistema Indeterminado (SPI)",a:"Retas coincidentes."},{q:"Definição de Equação",a:"Toda a sentença aberta expressa por uma igualdade."}];
+        
+        // --- FLASHCARDS DATA UPDATED ---
+        const flashcardsData = [
+            {q:"Definição de Equação",a:"Equação é uma igualdade em que aparece uma letra (ou mais) que representa um valor desconhecido. À letra que representa o valor desconhecido chama-se incógnita."},
+            {q:"Forma Canónica",a:"ax + b = 0"},{q:"Condição de Existência",a:"a ≠ 0"},{q:"Incógnita (x)",a:"Valor desconhecido a determinar."},{q:"Coeficiente Angular (a)",a:"Multiplica o x."},{q:"Termo Independente (b)",a:"Não depende de x."},{q:"Raiz",a:"Valor que torna a igualdade verdadeira."},{q:"Princípio Aditivo",a:"Adicionar/subtrair o mesmo valor a ambos os lados."},{q:"Regra da Transposição",a:"Mudar de membro inverte a operação."},{q:"Isolar a Incógnita",a:"Objetivo da resolução."},{q:"Sistema Impossível (SI)",a:"Retas paralelas distintas."},{q:"Sistema Indeterminado (SPI)",a:"Retas coincidentes."}
+        ];
+        
         const vfData = [{q:"Forma canónica é $ax+b=0$.",c:true,f:"Correto!"},{q:"Coeficiente $a$ pode ser zero.",c:false,f:"Falso! Se a=0 não há x."},{q:"Aditivo: somar passa a dividir.",c:false,f:"Falso! Somar passa a subtrair."},{q:"Raiz torna a igualdade verdadeira.",c:true,f:"Verdadeiro!"},{q:"A função $f(x)=x$ designa-se por função identidade.",c:true,f:"Verdadeiro! É a função linear mais simples."},{q:"Paralelas distintas = SPI.",c:false,f:"Falso! É SI."},{q:"Solução de $x+3=0$ é 3.",c:false,f:"Falso! É -3."},{q:"Termo independente não depende de x.",c:true,f:"Verdadeiro!"},{q:"$4x-8=3x+3 \\Rightarrow x=11$.",c:true,f:"Verdadeiro!"},{q:"Linguagem verbal é irrelevante.",c:false,f:"Falso! É crucial."}];
         const questions = [{id:1,phase:"Visual",text:"Equilibra a balança:",type:"balance",left:{boxes:1,units:2},right:{boxes:0,units:5},equation:"$$x + 2 = 5$$",answer:3,hint:"Retira 2 de cada lado.",explanation:"x = 3"},{id:2,phase:"Visual",text:"Equilibra a balança:",type:"balance",left:{boxes:1,units:4},right:{boxes:0,units:10},equation:"$$x + 4 = 10$$",answer:6,hint:"Retira 4 de cada lado.",explanation:"x = 6"},{id:3,phase:"Visual",text:"Caixas dos dois lados!",type:"balance",left:{boxes:2,units:0},right:{boxes:1,units:5},equation:"$$2x = x + 5$$",answer:5,hint:"Tira um x de cada lado.",explanation:"x = 5"},{id:4,phase:"Máquina",text:"Inverso de multiplicar:",type:"machine",visual:"⚙️ ( x 2 ) -> 8",equation:"$$2x = 8$$",answer:4,hint:"Divide por 2.",explanation:"x = 4"},{id:5,phase:"Máquina",text:"Dois passos:",type:"machine",visual:"⚙️ x 2 + 4 = 12",equation:"$$2x + 4 = 12$$",answer:4,hint:"Subtrai 4, depois divide.",explanation:"x = 4"},{id:6,phase:"Contexto",text:"Triplo menos 4 é 23.",type:"text",visual:"📝 Contexto",equation:"$$3x - 4 = 23$$",answer:9,hint:"3x = 27",explanation:"x = 9"},{id:7,phase:"Contexto",text:"Táxi: 2€ + 1,5€/km = 5€",type:"text",visual:"🚕 Táxi",equation:"$$1,5x + 2 = 5$$",answer:2,hint:"1,5x = 3",explanation:"x = 2"},{id:8,phase:"Mestre",text:"Frações:",type:"text",visual:"🏆 Fração",visualHint:"Tira 1, depois multiplica.",equation:"$$\\frac{x}{2} + 1 = 5$$",answer:8,hint:"x/2 = 4",explanation:"x = 8"}];
 
